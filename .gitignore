@@ -1,0 +1,81 @@
+# .NET Core / .NET 8
+bin/
+obj/
+out/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Rider
+.idea/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# Others
+*.cache
+*.dll
+*.exe
+*.pdb
+*.log
+.DS_Store
+Thumbs.db
+
+# SQL Server
+*.mdf
+*.ldf
+*.ldb
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Migration files (optional - comment if you want to track them)
+# **/Migrations/
+
+# Environment files
+appsettings.Development.json
+appsettings.Production.json
+.env
+
+# Node.js (si hay frontend futuro)
+node_modules/
+dist/
+package-lock.json
+
+# Test results
+TestResults/
+*.coverage
+*.coveragexml
+
+# CLAUDE.md - Keep this file
+!CLAUDE.md
