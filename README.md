@@ -12,21 +12,29 @@ es un sistema de inscripción de estudiantes basado en la web, diseñado para ge
 Este proyecto se desarrolló como parte de una evaluación técnica.
 El objetivo principal es demostrar principios sólidos de diseño de backend, una arquitectura limpia y una correcta aplicación de las reglas de negocio mediante tecnologías .NET modernas.
 
-### Características principales
+## Características principales
+
 Inscripción de estudiantes
+
 Inscripción al curso
+
 Ver estudiantes inscritos por curso (solo nombre)
+
 Validación de reglas de negocio en la capa de aplicación
+
 Integridad de datos relacionales
 
-📐 Reglas de negocio
+
+## 📐 Reglas de negocio
+
 Un estudiante puede inscribirse en hasta 3 cursos
 Cada curso vale 3 créditos.
 Un estudiante no puede inscribirse en varios cursos impartidos por el mismo profesor.
 Un curso está asignado a un solo profesor
 Los estudiantes solo pueden ver los nombres de sus compañeros inscritos en el mismo curso.
 
-🗄️ Acceso a datos y estrategia de bases de datos
+## 🗄️ Acceso a datos y estrategia de bases de datos
+
 La aplicación utiliza Entity Framework Core (Code First) para generar y administrar el esquema de la base de datos a través de migraciones.
 
 Aunque la base de datos está construida a partir de código, se incluye un script SQL MySQL completo para fines de referencia y validación, lo que demuestra el modelado relacional y la competencia en SQL.
