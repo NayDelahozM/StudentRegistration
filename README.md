@@ -389,14 +389,6 @@ ng serve
 }
 ```
 
-**⚠️ ADVERTENCIA:** El `SecretKey` actual es solo para desarrollo. Para producción, generar una clave segura única:
-```bash
-# Generar clave secreta segura (PowerShell)
-$headers = [System.Byte[]]::new(32)
-(New-Object Security.Cryptography.RNGCryptoServiceProvider).GetBytes($headers)
-[System.Convert]::ToBase64String($headers)
-```
-
 **Frontend** (no variables - está hardcoded en `auth.service.ts:7`):
 ```typescript
 private apiUrl = 'http://localhost:5000/api';
