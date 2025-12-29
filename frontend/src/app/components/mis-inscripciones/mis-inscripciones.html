@@ -1,0 +1,88 @@
+<div class="inscripciones-container">
+  <header class="page-header">
+    <button (click)="goBack()" class="btn-back">← Volver</button>
+    <div class="header-content">
+      <h1>📚 Mis Inscripciones</h1>
+      <p class="subtitle">Inscríbete a tus materias (máximo {{ maxMaterias }})</p>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando materias disponibles...</p>
+  </div>
+
+  <div *ngIf="!loading" class="content-container">
+    <div *ngIf="error" class="error-banner">
+      ⚠️ {{ error }}
+    </div>
+
+    <div *ngIf="mensajeExito" class="success-banner">
+      ✅ {{ mensajeExito }}
+    </div>
+
+    <div class="selection-info">
+      <div class="info-card">
+        <span class="label">Materias seleccionadas:</span>
+        <span class="count">{{ materiasSeleccionadas.size }} / {{ maxMaterias }}</span>
+      </div>
+      <div class="info-card">
+        <span class="label">Créditos totales:</span>
+        <span class="count">{{ getTotalCreditos() }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="materiasDisponibles.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No hay materias disponibles</h3>
+    </div>
+
+    <div class="materias-grid">
+      <div
+        *ngFor="let materia of materiasDisponibles"
+        class="materia-card"
+        [class.selected]="isSelected(materia.materiaId)"
+        [class.disabled]="!materia.disponible"
+        (click)="materia.disponible ? toggleMateria(materia.materiaId) : null"
+      >
+        <div class="card-header">
+          <div class="check-icon" *ngIf="isSelected(materia.materiaId)">✓</div>
+          <h3>{{ materia.nombre }}</h3>
+          <span class="badge">{{ materia.codigo }}</span>
+        </div>
+
+        <div class="card-body">
+          <div class="info-row">
+            <span class="label">Profesor:</span>
+            <span class="value">{{ materia.profesorNombre }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Créditos:</span>
+            <span class="value">{{ materia.creditos }}</span>
+          </div>
+
+          <div *ngIf="!materia.disponible && materia.motivoNoDisponible" class="warning-banner">
+            ⚠️ {{ materia.motivoNoDisponible }}
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="status" [class.available]="materia.disponible">
+            {{ materia.disponible ? 'Disponible' : 'No disponible' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-container" *ngIf="materiasDisponibles.length > 0">
+      <button
+        (click)="inscribirse()"
+        [disabled]="inscribiendo || materiasSeleccionadas.size === 0"
+        class="btn-inscribir"
+      >
+        <span *ngIf="!inscribiendo">Inscribirse a {{ materiasSeleccionadas.size }} materia(s)</span>
+        <span *ngIf="inscribiendo">Inscribiendo...</span>
+      </button>
+    </div>
+  </div>
+</div>

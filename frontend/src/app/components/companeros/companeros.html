@@ -1,0 +1,61 @@
+<div class="companeros-container">
+  <header class="page-header">
+    <button (click)="goBack()" class="btn-back">← Volver</button>
+    <div class="header-content">
+      <h1>👫 Mis Compañeros de Clase</h1>
+      <p class="subtitle">Requisito #9: Ver solo nombres de compañeros por materia</p>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando compañeros de clase...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+    <button (click)="loadCompaneros()" class="btn-retry">Reintentar</button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="content-container">
+    <div class="info-banner">
+      <span class="info-icon">ℹ️</span>
+      <span>Viendo <strong>solo nombres</strong> de tus compañeros (dato público)</span>
+    </div>
+
+    <div *ngIf="companerosAgrupados.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No tienes compañeros aún</h3>
+      <p>Aún no te has inscrito a ninguna materia.</p>
+      <a routerLink="/mis-inscripciones" class="btn-primary">Ver Materias Disponibles</a>
+    </div>
+
+    <div class="materias-container" *ngIf="companerosAgrupados.length > 0">
+      <div class="materia-card" *ngFor="let grupo of companerosAgrupados">
+        <div class="materia-header">
+          <div class="materia-icon">📚</div>
+          <div class="materia-info">
+            <h3>{{ grupo.materia }}</h3>
+            <p class="companeros-count">{{ grupo.companeros.length }} compañero(s)</p>
+          </div>
+        </div>
+
+        <div class="companeros-list">
+          <div class="companero-item" *ngFor="let companero of grupo.companeros">
+            <div class="companero-avatar">
+              {{ companero.charAt(0) }}
+            </div>
+            <span class="companero-nombre">{{ companero }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card" *ngIf="companerosAgrupados.length > 0">
+      <h3>📊 Resumen</h3>
+      <p>Materias con compañeros: <strong>{{ companerosAgrupados.length }}</strong></p>
+      <p>Total compañeros: <strong>{{ companeros.length }}</strong></p>
+    </div>
+  </div>
+</div>

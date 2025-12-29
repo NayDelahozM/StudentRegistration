@@ -1,0 +1,177 @@
+<div class="estudiantes-list-container">
+  <header class="page-header">
+    <button (click)="goBack()" class="btn-back">← Volver</button>
+    <div class="header-content">
+      <h1>👥 Lista de Estudiantes</h1>
+      <p class="subtitle">Gestión de Estudiantes</p>
+    </div>
+    <button *ngIf="isAdmin" (click)="openCreateModal()" class="btn-create">
+      ➕ Nuevo Estudiante
+    </button>
+  </header>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando estudiantes...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+    <button (click)="loadEstudiantes()" class="btn-retry">Reintentar</button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="content-container">
+    <div class="info-banner">
+      <span class="info-icon">ℹ️</span>
+      <span *ngIf="!isAdmin">Mostrando solo <strong>nombre y apellido</strong> de los estudiantes (datos públicos)</span>
+      <span *ngIf="isAdmin">Como administrador puedes <strong>crear, editar y eliminar</strong> estudiantes</span>
+    </div>
+
+    <div *ngIf="estudiantes.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No hay estudiantes registrados</h3>
+      <p *ngIf="isAdmin">Comienza creando un nuevo estudiante.</p>
+      <p *ngIf="!isAdmin">Aún no hay estudiantes en el sistema.</p>
+      <button *ngIf="isAdmin" (click)="openCreateModal()" class="btn-primary">Crear Primer Estudiante</button>
+    </div>
+
+    <div class="estudiantes-grid" *ngIf="estudiantes.length > 0">
+      <div class="estudiante-card" *ngFor="let estudiante of estudiantes">
+        <div class="card-header">
+          <div class="avatar">
+            {{ estudiante.nombre.charAt(0) }}{{ estudiante.apellido.charAt(0) }}
+          </div>
+          <div class="card-info">
+            <h3>{{ estudiante.nombreCompleto }}</h3>
+            <p class="student-id">ID: {{ estudiante.estudiantId }}</p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="badge-info">Datos Públicos</span>
+          <div *ngIf="isAdmin" class="actions">
+            <button (click)="openEditModal(estudiante.estudiantId)" class="btn-edit" title="Editar">
+              ✏️ Editar
+            </button>
+            <button (click)="openDeleteModal(estudiante.estudiantId)" class="btn-delete" title="Eliminar">
+              🗑️ Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card" *ngIf="estudiantes.length > 0">
+      <h3>📊 Resumen</h3>
+      <p>Total de estudiantes: <strong>{{ estudiantes.length }}</strong></p>
+    </div>
+  </div>
+
+  <!-- Modal Crear -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>➕ Nuevo Estudiante</h2>
+        <button (click)="closeCreateModal()" class="btn-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form (submit)="crearEstudiante()">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" [(ngModel)]="nuevoEstudiante.nombre" name="nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Apellido *</label>
+            <input type="text" [(ngModel)]="nuevoEstudiante.apellido" name="apellido" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="nuevoEstudiante.email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="nuevoEstudiante.telefono" name="telefono">
+          </div>
+          <div class="form-group">
+            <label>Dirección</label>
+            <input type="text" [(ngModel)]="nuevoEstudiante.direccion" name="direccion">
+          </div>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="date" [(ngModel)]="nuevoEstudiante.fechaNacimiento" name="fechaNacimiento">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeCreateModal()" class="btn-secondary">Cancelar</button>
+        <button (click)="crearEstudiante()" [disabled]="procesando" class="btn-primary">
+          {{ procesando ? 'Guardando...' : 'Crear Estudiante' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar -->
+  <div *ngIf="showEditModal && estudianteSeleccionado" class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>✏️ Editar Estudiante</h2>
+        <button (click)="closeEditModal()" class="btn-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <form (submit)="editarEstudiante()">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" [(ngModel)]="estudianteAEditar.nombre" name="nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Apellido *</label>
+            <input type="text" [(ngModel)]="estudianteAEditar.apellido" name="apellido" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="estudianteAEditar.email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="estudianteAEditar.telefono" name="telefono">
+          </div>
+          <div class="form-group">
+            <label>Dirección</label>
+            <input type="text" [(ngModel)]="estudianteAEditar.direccion" name="direccion">
+          </div>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="date" [(ngModel)]="estudianteAEditar.fechaNacimiento" name="fechaNacimiento">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeEditModal()" class="btn-secondary">Cancelar</button>
+        <button (click)="editarEstudiante()" [disabled]="procesando" class="btn-primary">
+          {{ procesando ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Eliminar -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🗑️ Eliminar Estudiante</h2>
+        <button (click)="closeDeleteModal()" class="btn-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar este estudiante?</p>
+        <p class="warning">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button (click)="closeDeleteModal()" class="btn-secondary">Cancelar</button>
+        <button (click)="eliminarEstudiante()" [disabled]="procesando" class="btn-danger">
+          {{ procesando ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

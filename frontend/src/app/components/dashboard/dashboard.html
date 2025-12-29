@@ -1,0 +1,97 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>🎓 Student Registration</h1>
+      <span class="subtitle">Sistema de Inscripción de Materias</span>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <span class="welcome">Bienvenido, {{ getUsername() }}</span>
+        <span class="badge">{{ getRol() }}</span>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <div (click)="navigateTo('/estudiantes')" routerLink="/estudiantes" routerLinkActive="active" class="nav-card">
+      <div class="nav-icon">👥</div>
+      <div class="nav-content">
+        <h3>Ver Estudiantes</h3>
+        <p>Lista de estudiantes registrados (Req #8)</p>
+      </div>
+    </div>
+
+    <div (click)="navigateTo('/mis-inscripciones')" routerLink="/mis-inscripciones" routerLinkActive="active" class="nav-card">
+      <div class="nav-icon">📚</div>
+      <div class="nav-content">
+        <h3>Mis Inscripciones</h3>
+        <p>Gestionar tus materias inscritas</p>
+      </div>
+    </div>
+
+    <div (click)="navigateTo('/companeros')" routerLink="/companeros" routerLinkActive="active" class="nav-card">
+      <div class="nav-icon">👫</div>
+      <div class="nav-content">
+        <h3>Mis Compañeros</h3>
+        <p>Ver compañeros de clase (Req #9)</p>
+      </div>
+    </div>
+  </nav>
+
+  <main class="dashboard-content">
+    <div class="welcome-card">
+      <h2>Bienvenido al Sistema de Inscripción</h2>
+
+      <p *ngIf="isEstudiante()">
+        Como estudiante, puedes:
+      </p>
+      <ul *ngIf="isEstudiante()" class="feature-list">
+        <li>✅ Inscribirte a máximo <strong>3 materias</strong></li>
+        <li>✅ Ver tus <strong>compañeros de clase</strong></li>
+        <li>✅ Consultar <strong>materias disponibles</strong></li>
+        <li>✅ Ver <strong>otros estudiantes</strong> registrados</li>
+      </ul>
+
+      <p *ngIf="isAdmin()">
+        Como administrador, tienes acceso completo a:
+      </p>
+      <ul *ngIf="isAdmin()" class="feature-list">
+        <li>✅ <strong>Crear</strong> nuevos estudiantes</li>
+        <li>✅ <strong>Editar</strong> información de estudiantes</li>
+        <li>✅ <strong>Eliminar</strong> estudiantes</li>
+        <li>✅ Ver <strong>toda la información</strong> del sistema</li>
+      </ul>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-icon">📚</div>
+        <h3>10 Materias</h3>
+        <p>Cada materia vale <strong>3 créditos</strong></p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">👨‍🏫</div>
+        <h3>5 Profesores</h3>
+        <p>Cada uno dicta <strong>2 materias</strong></p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">⚖️</div>
+        <h3>Máximo 3 Materias</h3>
+        <p>Límite por <strong>estudiante</strong></p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">🚫</div>
+        <h3>Sin Repetir Profesor</h3>
+        <p><strong>Validación</strong> automática</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="dashboard-footer">
+    <p>&copy; 2025 Student Registration System | Clean Architecture .NET 8</p>
+  </footer>
+</div>
