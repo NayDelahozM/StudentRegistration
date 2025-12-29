@@ -7,7 +7,7 @@ namespace StudentRegistration.Domain.Entities
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string Rol { get; set; }
-        public int? EstudiantId { get; set; }
+        public int? EstudianteId { get; set; }
         public virtual Estudiante Estudiante { get; set; }
     }
 }

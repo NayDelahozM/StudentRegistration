@@ -6,7 +6,7 @@ namespace StudentRegistration.Application.DTOs.Estudiante
 {
     public class EstudianteDto
     {
-        public int EstudiantId { get; set; }
+        public int EstudianteId { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string NombreCompleto => $"{Nombre} {Apellido}";

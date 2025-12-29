@@ -1,12 +1,12 @@
 export interface EstudianteSummary {
-  estudiantId: number;
+  estudianteId: number;
   nombre: string;
   apellido: string;
   nombreCompleto: string;
 }
 
 export interface Estudiante {
-  estudiantId: number;
+  estudianteId: number;
   nombre: string;
   apellido: string;
   nombreCompleto: string;

@@ -25,5 +25,5 @@ export interface User {
   username: string;
   email: string;
   rol: string;
-  estudiantId?: number;
+  estudianteId?: number;
 }

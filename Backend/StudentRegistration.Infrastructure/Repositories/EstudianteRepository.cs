@@ -18,7 +18,7 @@ namespace StudentRegistration.Infrastructure.Repositories
                     .ThenInclude(i => i.Materia)
                 .Include(e => e.Inscripciones)
                     .ThenInclude(i => i.Profesor)
-                .FirstOrDefaultAsync(e => e.EstudiantId == id && !e.IsDeleted);
+                .FirstOrDefaultAsync(e => e.EstudianteId == id && !e.IsDeleted);
         }
 
         public async Task<IEnumerable<Estudiante>> GetAllWithInscripcionesAsync()
@@ -38,7 +38,7 @@ namespace StudentRegistration.Infrastructure.Repositories
             
             if (excludeId.HasValue)
             {
-                query = query.Where(e => e.EstudiantId != excludeId.Value);
+                query = query.Where(e => e.EstudianteId != excludeId.Value);
             }
             
             return await query.AnyAsync();
@@ -56,7 +56,7 @@ namespace StudentRegistration.Infrastructure.Repositories
             return await Task.FromResult(
                 _context.Set<Estudiante>()
                     .Where(e => !e.IsDeleted)
-                    .OrderBy(e => e.EstudiantId)
+                    .OrderBy(e => e.EstudianteId)
             );
         }
     }

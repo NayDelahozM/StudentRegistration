@@ -36,7 +36,7 @@ namespace StudentRegistration.Infrastructure.Data
             modelBuilder.Entity<Estudiante>(entity =>
             {
                 entity.ToTable("Estudiantes");
-                entity.HasKey(e => e.EstudiantId);
+                entity.HasKey(e => e.EstudianteId);
                 entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Apellido).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
@@ -96,13 +96,13 @@ namespace StudentRegistration.Infrastructure.Data
             {
                 entity.ToTable("Inscripciones");
                 entity.HasKey(i => i.InscripcionId);
-                entity.HasIndex(i => new { i.EstudiantId, i.MateriaId })
+                entity.HasIndex(i => new { i.EstudianteId, i.MateriaId })
                     .IsUnique().HasDatabaseName("UK_EstudianteMateria").HasFilter("[IsDeleted] = 0");
-                entity.HasIndex(i => i.EstudiantId);
+                entity.HasIndex(i => i.EstudianteId);
                 entity.HasIndex(i => i.MateriaId);
                 entity.HasIndex(i => i.ProfesorId);
                 entity.HasOne(i => i.Estudiante).WithMany(e => e.Inscripciones)
-                    .HasForeignKey(i => i.EstudiantId).OnDelete(DeleteBehavior.Restrict);
+                    .HasForeignKey(i => i.EstudianteId).OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(i => i.Materia).WithMany(m => m.Inscripciones)
                     .HasForeignKey(i => i.MateriaId).OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(i => i.Profesor).WithMany(p => p.Inscripciones)
@@ -123,7 +123,7 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.HasIndex(u => u.Username).IsUnique().HasFilter("[IsDeleted] = 0");
                 entity.HasIndex(u => u.Email).IsUnique().HasFilter("[IsDeleted] = 0");
                 entity.HasOne(u => u.Estudiante).WithMany()
-                    .HasForeignKey(u => u.EstudiantId).OnDelete(DeleteBehavior.SetNull);
+                    .HasForeignKey(u => u.EstudianteId).OnDelete(DeleteBehavior.SetNull);
                 entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
                 entity.Property(u => u.IsDeleted).HasDefaultValue(false);
             });
@@ -180,8 +180,9 @@ namespace StudentRegistration.Infrastructure.Data
                 Username = "admin",
                 Email = "admin@universidad.edu",
                 // Credenciales demo (Swagger): username=admin, password=Admin123*
-                // Hash: BCrypt work factor 12
-                // Generated using: PasswordHasher.Hash("Admin123*")
+                // Hash: BCrypt work factor 12 (legacy format, still supported for backward compatibility)
+                // New passwords use ASP.NET Core Identity PasswordHasher (PBKDF2-HMAC-SHA256)
+                // This legacy hash will be auto-upgraded on next login
                 PasswordHash = "$2a$12$.kEz7r8WYD4fp.d0gwkml.RrsSHQWG1i1J6vyF/BL3RohOIoG3NSi",
                 Rol = "Admin",
                 CreatedAt = now,

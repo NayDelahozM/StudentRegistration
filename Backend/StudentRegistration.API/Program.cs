@@ -10,6 +10,7 @@ using StudentRegistration.Application.Mappings;
 using StudentRegistration.Application.Services;
 using StudentRegistration.Application.Validators;
 using StudentRegistration.Domain.Interfaces;
+using StudentRegistration.Infrastructure.Common;
 using StudentRegistration.Infrastructure.Data;
 using StudentRegistration.Infrastructure.Repositories;
 using StudentRegistration.Infrastructure.Services;
@@ -42,6 +43,9 @@ builder.Services.AddScoped<IInscripcionRepository, InscripcionRepository>();
 builder.Services.AddScoped<IMateriaRepository, MateriaRepository>();
 builder.Services.AddScoped<IProfesorRepository, ProfesorRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+// Infrastructure services
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();

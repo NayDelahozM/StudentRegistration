@@ -56,7 +56,7 @@ namespace StudentRegistration.API.Controllers
                 return BadRequest(new { message = result.Message, errors = result.Errors });
             }
 
-            return CreatedAtAction(nameof(GetById), new { id = result.Data.EstudiantId }, result.Data);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data.EstudianteId }, result.Data);
         }
 
         [HttpPut("{id}")]

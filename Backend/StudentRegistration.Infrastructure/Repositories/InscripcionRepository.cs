@@ -17,7 +17,7 @@ namespace StudentRegistration.Infrastructure.Repositories
                 .Include(i => i.Materia)
                 .Include(i => i.Profesor)
                 .Include(i => i.Estudiante)
-                .Where(i => i.EstudiantId == estudianteId && !i.IsDeleted)
+                .Where(i => i.EstudianteId == estudianteId && !i.IsDeleted)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -46,13 +46,13 @@ namespace StudentRegistration.Infrastructure.Repositories
         public async Task<int> CountByEstudianteAsync(int estudianteId)
         {
             return await _context.Set<Inscripcion>()
-                .CountAsync(i => i.EstudiantId == estudianteId && !i.IsDeleted);
+                .CountAsync(i => i.EstudianteId == estudianteId && !i.IsDeleted);
         }
 
         public async Task<bool> TieneProfesorAsync(int estudianteId, int profesorId)
         {
             return await _context.Set<Inscripcion>()
-                .AnyAsync(i => i.EstudiantId == estudianteId && 
+                .AnyAsync(i => i.EstudianteId == estudianteId && 
                               i.ProfesorId == profesorId && 
                               !i.IsDeleted);
         }
@@ -60,7 +60,7 @@ namespace StudentRegistration.Infrastructure.Repositories
         public async Task<bool> ExisteInscripcionAsync(int estudianteId, int materiaId)
         {
             return await _context.Set<Inscripcion>()
-                .AnyAsync(i => i.EstudiantId == estudianteId &&
+                .AnyAsync(i => i.EstudianteId == estudianteId &&
                               i.MateriaId == materiaId &&
                               !i.IsDeleted);
         }
@@ -80,7 +80,7 @@ namespace StudentRegistration.Infrastructure.Repositories
         {
             // Optimized query with direct SQL projection (no N+1 problem)
             var result = await _context.Set<Inscripcion>()
-                .Where(i => materiaIds.Contains(i.MateriaId) && i.EstudiantId != excludeEstudianteId && !i.IsDeleted)
+                .Where(i => materiaIds.Contains(i.MateriaId) && i.EstudianteId != excludeEstudianteId && !i.IsDeleted)
                 .Select(i => new
                 {
                     EstudianteNombre = i.Estudiante.Nombre + " " + i.Estudiante.Apellido,

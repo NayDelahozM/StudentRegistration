@@ -101,7 +101,7 @@ namespace StudentRegistration.Application.Services
 
         public async Task<Result<IEnumerable<InscripcionDto>>> InscribirAsync(CreateInscripcionDto dto)
         {
-            var validacion = await ValidateInscripcionAsync(dto.EstudiantId, dto.MateriaIds);
+            var validacion = await ValidateInscripcionAsync(dto.EstudianteId, dto.MateriaIds);
             if (!validacion.IsSuccess)
             {
                 return Result<IEnumerable<InscripcionDto>>.Failure(validacion.Message, validacion.Errors);
@@ -117,7 +117,7 @@ namespace StudentRegistration.Application.Services
 
                     var inscripcion = new Inscripcion
                     {
-                        EstudiantId = dto.EstudiantId,
+                        EstudianteId = dto.EstudianteId,
                         MateriaId = materiaId,
                         ProfesorId = profesorMateria.ProfesorId
                     };
@@ -128,7 +128,7 @@ namespace StudentRegistration.Application.Services
                 // CommitAsync already calls SaveChangesAsync internally
                 await _unitOfWork.CommitAsync();
 
-                var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(dto.EstudiantId);
+                var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(dto.EstudianteId);
                 var dtos = _mapper.Map<IEnumerable<InscripcionDto>>(inscripciones);
 
                 return Result<IEnumerable<InscripcionDto>>.Success(dtos, "Inscripción realizada exitosamente");
@@ -143,16 +143,28 @@ namespace StudentRegistration.Application.Services
         public async Task<Result> CancelarAsync(int inscripcionId)
         {
             var inscripcion = await _unitOfWork.Inscripciones.GetByIdAsync(inscripcionId);
-            
+
             if (inscripcion == null)
             {
                 return Result.Failure("Inscripción no encontrada");
             }
 
-            await _unitOfWork.Inscripciones.DeleteAsync(inscripcion);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            return Result.Success("Inscripción cancelada exitosamente");
+                await _unitOfWork.Inscripciones.DeleteAsync(inscripcion);
+
+                // CommitAsync hace SaveChangesAsync internamente
+                await _unitOfWork.CommitAsync();
+
+                return Result.Success("Inscripción cancelada exitosamente");
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<Result<IEnumerable<MateriaDisponibleDto>>> GetMateriasDisponiblesAsync(int estudianteId)
@@ -212,7 +224,7 @@ namespace StudentRegistration.Application.Services
             var dtos = inscripciones.Select(i => new InscripcionDto
             {
                 InscripcionId = i.InscripcionId,
-                EstudiantId = i.EstudiantId,
+                EstudianteId = i.EstudianteId,
                 EstudianteNombre = $"{i.Estudiante.Nombre} {i.Estudiante.Apellido}",
                 EstudianteEmail = i.Estudiante.Email,
                 MateriaId = i.MateriaId,

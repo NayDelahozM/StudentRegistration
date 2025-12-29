@@ -3,6 +3,10 @@
     <h1>🎓 Student Registration</h1>
     <h2>Iniciar Sesión</h2>
 
+    <div *ngIf="infoMessage" class="info-message">
+      {{ infoMessage }}
+    </div>
+
     <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
       <div class="form-group">
         <label for="username">Usuario</label>

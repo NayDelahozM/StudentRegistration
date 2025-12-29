@@ -62,7 +62,7 @@ export class AuthService {
 
   getEstudiantId(): number | null {
     const user = this.currentUserSubject.value;
-    return user?.estudiantId || null;
+    return user?.estudianteId || null;
   }
 
   private storeToken(token: string): void {
@@ -75,7 +75,7 @@ export class AuthService {
       username: response.username,
       email: response.email,
       rol: response.rol,
-      estudiantId: this.parseStudentIdFromToken(response.token) || undefined
+      estudianteId: this.parseStudentIdFromToken(response.token) || undefined
     };
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSubject.next(user);

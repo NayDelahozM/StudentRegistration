@@ -5,7 +5,7 @@ namespace StudentRegistration.Domain.Entities
 {
     public class Estudiante : BaseEntity
     {
-        public int EstudiantId { get; set; }
+        public int EstudianteId { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string Email { get; set; }

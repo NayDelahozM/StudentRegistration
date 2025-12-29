@@ -35,10 +35,10 @@ namespace StudentRegistration.Infrastructure.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            // Fix Problema #2: Agregar claim studentId cuando el usuario tenga EstudiantId asociado
-            if (usuario.EstudiantId.HasValue)
+            // Fix Problema #2: Agregar claim studentId cuando el usuario tenga EstudianteId asociado
+            if (usuario.EstudianteId.HasValue)
             {
-                claimsList.Add(new Claim("studentId", usuario.EstudiantId.Value.ToString()));
+                claimsList.Add(new Claim("studentId", usuario.EstudianteId.Value.ToString()));
             }
 
             var token = new JwtSecurityToken(

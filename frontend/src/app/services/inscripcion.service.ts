@@ -27,14 +27,14 @@ export class InscripcionService {
 
   validarInscripcion(estudianteId: number, materiaIds: number[]): Observable<ValidacionResponse> {
     return this.http.post<ValidacionResponse>(`${this.apiUrl}/validar`, {
-      estudiantId: estudianteId,
+      estudianteId: estudianteId,
       materiaIds: materiaIds
     });
   }
 
   inscribir(estudianteId: number, materiaIds: number[]): Observable<InscripcionDetalle[]> {
     return this.http.post<InscripcionDetalle[]>(`${this.apiUrl}`, {
-      estudiantId: estudianteId,
+      estudianteId: estudianteId,
       materiaIds: materiaIds
     });
   }

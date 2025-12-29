@@ -10,13 +10,13 @@ export interface MateriaDisponible {
 }
 
 export interface CreateInscripcion {
-  estudiantId: number;
+  estudianteId: number;
   materiaIds: number[];
 }
 
 export interface InscripcionDetalle {
   inscripcionId: number;
-  estudiantId: number;
+  estudianteId: number;
   estudianteNombre: string;
   estudianteEmail: string;
   materiaId: number;

@@ -1,0 +1,35 @@
+<div class="unauthorized-container">
+  <div class="unauthorized-card">
+    <div class="icon-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+
+    <h1>Acceso Denegado</h1>
+    <p class="error-message">{{ errorMessage }}</p>
+
+    <div class="info-box">
+      <p><strong>¿Por qué estás viendo esto?</strong></p>
+      <ul>
+        <li>No tienes los permisos necesarios para acceder a esta página.</li>
+        <li>Esta página es exclusiva para administradores.</li>
+        <li>Tu sesión puede haber expirado.</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button (click)="goBack()" class="btn btn-secondary">
+        Volver
+      </button>
+      <button (click)="goToDashboard()" class="btn btn-primary">
+        Ir al Dashboard
+      </button>
+      <button (click)="logout()" class="btn btn-outline">
+        Cerrar Sesión
+      </button>
+    </div>
+  </div>
+</div>

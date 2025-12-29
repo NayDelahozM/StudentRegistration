@@ -27,7 +27,7 @@ export const routes: Routes = [
     path: 'estudiantes',
     loadComponent: () => import('./components/estudiantes-list/estudiantes-list')
       .then(m => m.EstudiantesListComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, adminGuard]
   },
   {
     path: 'companeros',
@@ -48,10 +48,15 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'unauthorized',
+    loadComponent: () => import('./components/unauthorized/unauthorized')
+      .then(m => m.UnauthorizedComponent)
+  },
+  {
     path: 'todas-inscripciones',
     loadComponent: () => import('./components/todas-inscripciones/todas-inscripciones')
       .then(m => m.TodasInscripcionesComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, adminGuard]
   },
   {
     path: '**',

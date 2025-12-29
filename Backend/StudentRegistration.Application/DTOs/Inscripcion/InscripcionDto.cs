@@ -5,7 +5,7 @@ namespace StudentRegistration.Application.DTOs.Inscripcion
     public class InscripcionDto
     {
         public int InscripcionId { get; set; }
-        public int EstudiantId { get; set; }
+        public int EstudianteId { get; set; }
         public string EstudianteNombre { get; set; }
         public string EstudianteEmail { get; set; }
         public int MateriaId { get; set; }

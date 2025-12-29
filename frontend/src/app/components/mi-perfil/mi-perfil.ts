@@ -30,13 +30,13 @@ export class MiPerfilComponent implements OnInit {
       return;
     }
 
-    const estudiantId = this.authService.getEstudiantId();
-    if (!estudiantId) {
+    const estudianteId = this.authService.getEstudiantId();
+    if (!estudianteId) {
       this.error = 'No se pudo obtener tu ID de estudiante. Por favor inicia sesión nuevamente.';
       return;
     }
 
-    this.loadMiPerfil(estudiantId);
+    this.loadMiPerfil(estudianteId);
   }
 
   loadMiPerfil(estudianteId: number): void {

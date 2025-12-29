@@ -39,16 +39,16 @@
           </div>
           <div class="card-info">
             <h3>{{ estudiante.nombreCompleto }}</h3>
-            <p class="student-id">ID: {{ estudiante.estudiantId }}</p>
+            <p class="student-id">ID: {{ estudiante.estudianteId }}</p>
           </div>
         </div>
         <div class="card-footer">
           <span class="badge-info">Datos Públicos</span>
           <div *ngIf="isAdmin" class="actions">
-            <button (click)="openEditModal(estudiante.estudiantId)" class="btn-edit" title="Editar">
+            <button (click)="openEditModal(estudiante.estudianteId)" class="btn-edit" title="Editar">
               ✏️ Editar
             </button>
-            <button (click)="openDeleteModal(estudiante.estudiantId)" class="btn-delete" title="Eliminar">
+            <button (click)="openDeleteModal(estudiante.estudianteId)" class="btn-delete" title="Eliminar">
               🗑️ Eliminar
             </button>
           </div>

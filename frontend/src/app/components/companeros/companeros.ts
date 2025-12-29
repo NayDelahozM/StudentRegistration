@@ -24,7 +24,7 @@ export class CompanerosComponent implements OnInit {
   companerosAgrupados: CompaneroGroup[] = [];
   loading = false;
   error = '';
-  estudiantId: number | null = null;
+  estudianteId: number | null = null;
   esErrorAdmin = false;
 
   constructor(
@@ -42,9 +42,9 @@ export class CompanerosComponent implements OnInit {
       return;
     }
 
-    this.estudiantId = this.authService.getEstudiantId();
+    this.estudianteId = this.authService.getEstudiantId();
 
-    if (!this.estudiantId) {
+    if (!this.estudianteId) {
       this.error = 'No se pudo obtener tu ID de estudiante. Por favor inicia sesión nuevamente.';
       return;
     }
@@ -53,7 +53,7 @@ export class CompanerosComponent implements OnInit {
   }
 
   loadCompaneros(): void {
-    if (!this.estudiantId) {
+    if (!this.estudianteId) {
       this.error = 'No se pudo obtener tu ID de estudiante. Por favor inicia sesión nuevamente.';
       return;
     }
@@ -61,7 +61,7 @@ export class CompanerosComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.estudianteService.getCompañeros(this.estudiantId).pipe(
+    this.estudianteService.getCompañeros(this.estudianteId).pipe(
       timeout(15000), // 15 segundos de timeout
       catchError(err => {
         console.error('Error al cargar compañeros:', err);

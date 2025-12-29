@@ -14,19 +14,21 @@ namespace StudentRegistration.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
+        private readonly Domain.Interfaces.IPasswordHasher _passwordHasher;
 
-        public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService, IMapper mapper)
+        public AuthService(IUnitOfWork unitOfWork, IJwtService jwtService, IMapper mapper, Domain.Interfaces.IPasswordHasher passwordHasher)
         {
             _unitOfWork = unitOfWork;
             _jwtService = jwtService;
             _mapper = mapper;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<Result<LoginResponseDto>> LoginAsync(LoginRequestDto request)
         {
             var usuario = await _unitOfWork.Usuarios.GetByUsernameAsync(request.Username);
-            
-            if (usuario == null || !VerifyPassword(request.Password, usuario.PasswordHash))
+
+            if (usuario == null || !VerifyPassword(usuario, request.Password, usuario.PasswordHash))
             {
                 return Result<LoginResponseDto>.Failure("Usuario o contraseña incorrectos");
             }
@@ -53,40 +55,43 @@ namespace StudentRegistration.Application.Services
                 return Result<LoginResponseDto>.Failure("El nombre de usuario ya existe");
             }
 
-            // Fix Problema #3: Usar transacción para crear Usuario y Estudiante atómicamente
+            // Patrón B: Usar transacción con CommitAsync único (sin SaveChangesAsync intermedios)
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
 
-                // Crear el estudiante primero
+                // Crear el estudiante
                 var estudiante = new Estudiante
                 {
                     Nombre = request.Nombre,
                     Apellido = request.Apellido,
                     Email = request.Email,
-                    Telefono = string.Empty, // Campo opcional, se inicializa vacío
-                    Direccion = string.Empty, // Campo opcional, se inicializa vacío
+                    Telefono = string.Empty,
+                    Direccion = string.Empty,
                     Activo = true
                 };
 
                 await _unitOfWork.Estudiantes.AddAsync(estudiante);
-                // SaveChanges needed to get the generated EstudiantId before creating Usuario
-                await _unitOfWork.SaveChangesAsync();
 
-                // Crear el usuario asociado al estudiante
+                // Crear el usuario (EstudianteId se asignará durante CommitAsync)
                 var usuario = new Usuario
                 {
                     Username = request.Username,
                     Email = request.Email,
-                    PasswordHash = HashPassword(request.Password),
                     Rol = "Estudiante",
-                    EstudiantId = estudiante.EstudiantId // Asociar con el estudiante creado
+                    PasswordHash = string.Empty // Se asignará después
                 };
 
-                await _unitOfWork.Usuarios.AddAsync(usuario);
-                await _unitOfWork.SaveChangesAsync();
+                // Hash password usando el usuario ya creado
+                usuario.PasswordHash = HashPassword(usuario, request.Password);
 
-                // Commit the transaction (all changes are already saved, this just commits the transaction)
+                await _unitOfWork.Usuarios.AddAsync(usuario);
+
+                // IMPORTANTE: Establecer la relación ANTES del Commit
+                // EF Core detectará que estudiante.EstudianteId se generará y lo usará
+                usuario.Estudiante = estudiante;
+
+                // CommitAsync hace SaveChangesAsync internamente y commitea la transacción
                 await _unitOfWork.CommitAsync();
 
                 // Generar token (ahora incluirá el claim studentId)
@@ -116,14 +121,14 @@ namespace StudentRegistration.Application.Services
             }
         }
 
-        private string HashPassword(string password)
+        private string HashPassword(Usuario usuario, string password)
         {
-            return PasswordHasher.Hash(password);
+            return _passwordHasher.Hash(usuario, password);
         }
 
-        private bool VerifyPassword(string password, string hash)
+        private bool VerifyPassword(Usuario usuario, string password, string hash)
         {
-            return PasswordHasher.Verify(password, hash);
+            return _passwordHasher.Verify(usuario, password, hash);
         }
 }
 }

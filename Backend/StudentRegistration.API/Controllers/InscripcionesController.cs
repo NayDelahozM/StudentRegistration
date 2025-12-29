@@ -23,12 +23,12 @@ namespace StudentRegistration.API.Controllers
         public async Task<IActionResult> Validar([FromBody] CreateInscripcionDto dto)
         {
             // Fix Problema #2: Validar autorización por estudiante
-            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudiantId))
+            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudianteId))
             {
                 return StatusCode(403, new { message = "No tienes permiso para validar inscripciones de este estudiante" });
             }
 
-            var result = await _inscripcionService.ValidateInscripcionAsync(dto.EstudiantId, dto.MateriaIds);
+            var result = await _inscripcionService.ValidateInscripcionAsync(dto.EstudianteId, dto.MateriaIds);
 
             return Ok(new
             {
@@ -42,7 +42,7 @@ namespace StudentRegistration.API.Controllers
         public async Task<IActionResult> Inscribir([FromBody] CreateInscripcionDto dto)
         {
             // Fix Problema #2: Validar autorización por estudiante
-            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudiantId))
+            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudianteId))
             {
                 return StatusCode(403, new { message = "No tienes permiso para inscribir a este estudiante" });
             }
@@ -70,7 +70,7 @@ namespace StudentRegistration.API.Controllers
 
             // Validar autorización: los estudiantes solo pueden cancelar sus propias inscripciones
             var inscripcion = inscripciones.Data;
-            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, inscripcion.EstudiantId))
+            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, inscripcion.EstudianteId))
             {
                 return StatusCode(403, new { message = "No tienes permiso para cancelar esta inscripción" });
             }

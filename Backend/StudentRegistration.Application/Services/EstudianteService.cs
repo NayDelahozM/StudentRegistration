@@ -65,20 +65,32 @@ namespace StudentRegistration.Application.Services
                 return Result<EstudianteDto>.Failure("El email ya está registrado");
             }
 
-            var estudiante = _mapper.Map<Estudiante>(dto);
-            await _unitOfWork.Estudiantes.AddAsync(estudiante);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            var result = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(estudiante.EstudiantId);
-            var resultDto = _mapper.Map<EstudianteDto>(result);
+                var estudiante = _mapper.Map<Estudiante>(dto);
+                await _unitOfWork.Estudiantes.AddAsync(estudiante);
 
-            return Result<EstudianteDto>.Success(resultDto, "Estudiante creado exitosamente");
+                // CommitAsync hace SaveChangesAsync internamente
+                await _unitOfWork.CommitAsync();
+
+                var result = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(estudiante.EstudianteId);
+                var resultDto = _mapper.Map<EstudianteDto>(result);
+
+                return Result<EstudianteDto>.Success(resultDto, "Estudiante creado exitosamente");
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<Result<EstudianteDto>> UpdateAsync(int id, UpdateEstudianteDto dto)
         {
             var estudiante = await _unitOfWork.Estudiantes.GetByIdAsync(id);
-            
+
             if (estudiante == null)
             {
                 return Result<EstudianteDto>.Failure("Estudiante no encontrado");
@@ -89,34 +101,58 @@ namespace StudentRegistration.Application.Services
                 return Result<EstudianteDto>.Failure("El email ya está registrado");
             }
 
-            _mapper.Map(dto, estudiante);
-            estudiante.UpdatedAt = DateTime.UtcNow;
-            
-            await _unitOfWork.Estudiantes.UpdateAsync(estudiante);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            var result = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(id);
-            var resultDto = _mapper.Map<EstudianteDto>(result);
+                _mapper.Map(dto, estudiante);
+                estudiante.UpdatedAt = DateTime.UtcNow;
 
-            return Result<EstudianteDto>.Success(resultDto, "Estudiante actualizado exitosamente");
+                await _unitOfWork.Estudiantes.UpdateAsync(estudiante);
+
+                // CommitAsync hace SaveChangesAsync internamente
+                await _unitOfWork.CommitAsync();
+
+                var result = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(id);
+                var resultDto = _mapper.Map<EstudianteDto>(result);
+
+                return Result<EstudianteDto>.Success(resultDto, "Estudiante actualizado exitosamente");
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<Result> DeleteAsync(int id)
         {
             var estudiante = await _unitOfWork.Estudiantes.GetByIdAsync(id);
-            
+
             if (estudiante == null)
             {
                 return Result.Failure("Estudiante no encontrado");
             }
 
-            estudiante.IsDeleted = true;
-            estudiante.UpdatedAt = DateTime.UtcNow;
-            
-            await _unitOfWork.Estudiantes.UpdateAsync(estudiante);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            return Result.Success("Estudiante eliminado exitosamente");
+                estudiante.IsDeleted = true;
+                estudiante.UpdatedAt = DateTime.UtcNow;
+
+                await _unitOfWork.Estudiantes.UpdateAsync(estudiante);
+
+                // CommitAsync hace SaveChangesAsync internamente
+                await _unitOfWork.CommitAsync();
+
+                return Result.Success("Estudiante eliminado exitosamente");
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<Result<IEnumerable<CompañeroClaseDto>>> GetCompañerosAsync(int estudianteId)

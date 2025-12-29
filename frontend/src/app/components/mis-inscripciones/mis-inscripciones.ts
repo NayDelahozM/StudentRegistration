@@ -42,11 +42,11 @@ export class MisInscripcionesComponent implements OnInit {
       return;
     }
 
-    const estudiantId = this.authService.getEstudiantId();
+    const estudianteId = this.authService.getEstudiantId();
 
-    if (estudiantId) {
-      this.debugInfo = `Estudiante ID: ${estudiantId}`;
-      this.cargarMateriasDisponibles(estudiantId);
+    if (estudianteId) {
+      this.debugInfo = `Estudiante ID: ${estudianteId}`;
+      this.cargarMateriasDisponibles(estudianteId);
     } else {
       this.error = 'No se pudo obtener tu ID de estudiante. Por favor inicia sesión nuevamente.';
     }
@@ -135,13 +135,13 @@ export class MisInscripcionesComponent implements OnInit {
       return;
     }
 
-    const estudiantId = this.authService.getEstudiantId();
-    if (!estudiantId) return;
+    const estudianteId = this.authService.getEstudiantId();
+    if (!estudianteId) return;
 
     this.inscribiendo = true;
     this.error = '';
 
-    this.inscripcionService.inscribir(estudiantId, Array.from(this.materiasSeleccionadas)).subscribe({
+    this.inscripcionService.inscribir(estudianteId, Array.from(this.materiasSeleccionadas)).subscribe({
       next: (response) => {
         this.mensajeExito = '¡Inscripción exitosa!';
         this.materiasSeleccionadas.clear();
@@ -149,7 +149,7 @@ export class MisInscripcionesComponent implements OnInit {
 
         setTimeout(() => {
           this.mensajeExito = '';
-          this.cargarMateriasDisponibles(estudiantId);
+          this.cargarMateriasDisponibles(estudianteId);
         }, 2000);
       },
       error: (err) => {

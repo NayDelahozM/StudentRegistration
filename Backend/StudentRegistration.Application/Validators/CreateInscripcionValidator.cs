@@ -8,7 +8,7 @@ namespace StudentRegistration.Application.Validators
     {
         public CreateInscripcionValidator()
         {
-            RuleFor(x => x.EstudiantId)
+            RuleFor(x => x.EstudianteId)
                 .GreaterThan(0).WithMessage("El ID del estudiante es inválido");
 
             RuleFor(x => x.MateriaIds)

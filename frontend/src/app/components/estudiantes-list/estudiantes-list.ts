@@ -169,7 +169,7 @@ export class EstudiantesListComponent implements OnInit {
 
     this.procesando = true;
 
-    this.estudianteService.updateEstudiante(this.estudianteSeleccionado.estudiantId, this.estudianteAEditar).subscribe({
+    this.estudianteService.updateEstudiante(this.estudianteSeleccionado.estudianteId, this.estudianteAEditar).subscribe({
       next: () => {
         this.closeEditModal();
         this.loadEstudiantes();
