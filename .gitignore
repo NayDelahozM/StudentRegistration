@@ -77,11 +77,11 @@ TestResults/
 *.coverage
 *.coveragexml
 
-# CLAUDE.md - Keep this file
-!CLAUDE.md
-
-# EVALUACION_TECNICA.md - Keep documentation
-!EVALUACION_TECNICA.md
+# AI/CLAUDE documentation
+CLAUDE.md
+EVALUACION_TECNICA.md
+.claude/
+.bmad-core/
 
 # Temporary files
 *nul
