@@ -14,7 +14,12 @@ namespace StudentRegistration.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+
+        // REGLA DE NEGOCIO: Máximo 3 materias por estudiante (limitación académica)
         private const int MAX_MATERIAS = 3;
+
+        // REGLA DE NEGOCIO: Máximo 9 créditos = 3 materias × 3 créditos cada una
+        // Si se agrega una materia de 4 créditos, esta validación previene sobrepasar el límite
         private const int MAX_CREDITOS = 9;
 
         public InscripcionService(IUnitOfWork unitOfWork, IMapper mapper)
@@ -52,7 +57,8 @@ namespace StudentRegistration.Application.Services
                 return Result.Failure(errors);
             }
 
-            // Validar límite de créditos
+            // Validar límite de créditos independiente del número de materias
+            // NECESARIO: Una materia podría tener más de 3 créditos en el futuro
             var creditosActuales = await _unitOfWork.Inscripciones.GetCreditosByEstudianteAsync(estudianteId);
             if (creditosActuales >= MAX_CREDITOS)
             {
@@ -60,9 +66,11 @@ namespace StudentRegistration.Application.Services
                 return Result.Failure(errors);
             }
 
+            // HashSet para O(1) lookup al validar duplicados de profesor
+            // REGLA DE NEGOCIO: Un estudiante NO puede tener dos materias con el mismo profesor
             var profesoresAsignados = new HashSet<int>();
             var inscripcionesExistentes = await _unitOfWork.Inscripciones.GetByEstudianteAsync(estudianteId);
-            
+
             foreach (var i in inscripcionesExistentes)
             {
                 profesoresAsignados.Add(i.ProfesorId);
@@ -90,7 +98,8 @@ namespace StudentRegistration.Application.Services
                     continue;
                 }
 
-                // Validar que el Profesor no sea null (defensive programming)
+                // DEFENSIVE: Include puede fallar si EF Core no carga la relación
+                // Esto previene NullReferenceException si el navigation property está null
                 if (profesorMateria.Profesor == null)
                 {
                     errors.Add($"La materia {materia.Nombre} tiene profesor asignado pero los datos del profesor no están disponibles");
@@ -123,12 +132,17 @@ namespace StudentRegistration.Application.Services
                 return Result<IEnumerable<InscripcionDto>>.Failure(validacion.Message, validacion.Errors);
             }
 
+            // TRANSACCIÓN ATÓMICA: Todas las inscripciones deben persistir juntas
+            // Si falla la segunda materia, se rollback la primera (consistencia)
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 foreach (var materiaId in dto.MateriaIds)
                 {
                     var materia = await _unitOfWork.Materias.GetMateriaConProfesorAsync(materiaId);
+
+                    // RIESGO: First() lanza InvalidOperationException si no hay profesor
+                    // Asumimos seguro porque ValidateInscripcionAsync ya validó esta condición
                     var profesorMateria = materia.ProfesorMaterias.First();
 
                     var inscripcion = new Inscripcion
@@ -141,7 +155,8 @@ namespace StudentRegistration.Application.Services
                     await _unitOfWork.Inscripciones.AddAsync(inscripcion);
                 }
 
-                // CommitAsync already calls SaveChangesAsync internally
+                // CommitAsync internamente llama a SaveChangesAsync() - NO llamarlo antes
+                // RIESGO: Llamar SaveChangesAsync dos veces causa commit prematuro
                 await _unitOfWork.CommitAsync();
 
                 var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(dto.EstudianteId);
@@ -171,7 +186,7 @@ namespace StudentRegistration.Application.Services
 
                 await _unitOfWork.Inscripciones.DeleteAsync(inscripcion);
 
-                // CommitAsync hace SaveChangesAsync internamente
+                // CommitAsync internamente llama a SaveChangesAsync() - NO llamarlo antes
                 await _unitOfWork.CommitAsync();
 
                 return Result.Success("Inscripción cancelada exitosamente");
@@ -187,15 +202,17 @@ namespace StudentRegistration.Application.Services
         {
             var todasLasMaterias = await _unitOfWork.Materias.GetMateriasConProfesoresAsync();
             var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(estudianteId);
-            
+
             var profesoresAsignados = inscripciones.Select(i => i.ProfesorId).ToHashSet();
             var materiasInscritas = inscripciones.Select(i => i.MateriaId).ToHashSet();
 
+            // PERFORMANCE: Todo procesamiento en memoria (máximo 10 materias)
+            // NO requiere query adicional a DB - trade-off aceptable para este volumen
             var resultado = todasLasMaterias.Select(m =>
             {
                 var pm = m.ProfesorMaterias.FirstOrDefault();
-                var disponible = pm != null && 
-                                !materiasInscritas.Contains(m.MateriaId) && 
+                var disponible = pm != null &&
+                                !materiasInscritas.Contains(m.MateriaId) &&
                                 !profesoresAsignados.Contains(pm.ProfesorId);
 
                 string motivo = "";

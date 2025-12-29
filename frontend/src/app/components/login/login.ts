@@ -27,7 +27,6 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if user was redirected with a message
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.infoMessage = navigation.extras.state['message'] || '';
@@ -42,8 +41,6 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginData).subscribe({
       next: () => {
         this.loading = false;
-
-        // Try to redirect to the return URL if available
         const navigation = this.router.getCurrentNavigation();
         const returnUrl = navigation?.extras?.state?.['returnUrl'] || '/dashboard';
 

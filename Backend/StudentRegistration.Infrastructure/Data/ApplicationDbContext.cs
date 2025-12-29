@@ -6,7 +6,7 @@ namespace StudentRegistration.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
@@ -22,17 +22,13 @@ namespace StudentRegistration.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Query filters para soft delete
             modelBuilder.Entity<Estudiante>().HasQueryFilter(e => !e.IsDeleted);
             modelBuilder.Entity<Profesor>().HasQueryFilter(p => !p.IsDeleted);
             modelBuilder.Entity<Materia>().HasQueryFilter(m => !m.IsDeleted);
-            // Importante: como ProfesorMateria depende de Materia, también filtramos la tabla puente
-            // para no traer relaciones hacia Materias soft-deleted (evita warnings y resultados raros).
             modelBuilder.Entity<ProfesorMateria>().HasQueryFilter(pm => !pm.IsDeleted && !pm.Materia.IsDeleted);
             modelBuilder.Entity<Inscripcion>().HasQueryFilter(i => !i.IsDeleted);
             modelBuilder.Entity<Usuario>().HasQueryFilter(u => !u.IsDeleted);
 
-            // Configuración de Estudiante
             modelBuilder.Entity<Estudiante>(entity =>
             {
                 entity.ToTable("Estudiantes");
@@ -48,7 +44,6 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.Property(e => e.Activo).HasDefaultValue(true);
             });
 
-            // Configuración de Profesor
             modelBuilder.Entity<Profesor>(entity =>
             {
                 entity.ToTable("Profesores");
@@ -61,7 +56,6 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.Property(p => p.IsDeleted).HasDefaultValue(false);
             });
 
-            // Configuración de Materia
             modelBuilder.Entity<Materia>(entity =>
             {
                 entity.ToTable("Materias");
@@ -75,7 +69,6 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.Property(m => m.IsDeleted).HasDefaultValue(false);
             });
 
-            // Configuración de ProfesorMateria
             modelBuilder.Entity<ProfesorMateria>(entity =>
             {
                 entity.ToTable("ProfesorMaterias");
@@ -91,7 +84,6 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.Property(pm => pm.IsDeleted).HasDefaultValue(false);
             });
 
-            // Configuración de Inscripcion
             modelBuilder.Entity<Inscripcion>(entity =>
             {
                 entity.ToTable("Inscripciones");
@@ -111,7 +103,6 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.Property(i => i.IsDeleted).HasDefaultValue(false);
             });
 
-            // Configuración de Usuario
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("Usuarios");
@@ -128,7 +119,6 @@ namespace StudentRegistration.Infrastructure.Data
                 entity.Property(u => u.IsDeleted).HasDefaultValue(false);
             });
 
-            // Seed data
             SeedData(modelBuilder);
         }
 
@@ -136,7 +126,6 @@ namespace StudentRegistration.Infrastructure.Data
         {
             var now = DateTime.UtcNow;
 
-            // Seed Profesores
             modelBuilder.Entity<Profesor>().HasData(
                 new Profesor { ProfesorId = 1, Nombre = "Carlos", Apellido = "Rodríguez", Email = "carlos.rodriguez@universidad.edu", CreatedAt = now, IsDeleted = false },
                 new Profesor { ProfesorId = 2, Nombre = "María", Apellido = "González", Email = "maria.gonzalez@universidad.edu", CreatedAt = now, IsDeleted = false },
@@ -145,7 +134,6 @@ namespace StudentRegistration.Infrastructure.Data
                 new Profesor { ProfesorId = 5, Nombre = "Pedro", Apellido = "Sánchez", Email = "pedro.sanchez@universidad.edu", CreatedAt = now, IsDeleted = false }
             );
 
-            // Seed Materias
             modelBuilder.Entity<Materia>().HasData(
                 new Materia { MateriaId = 1, Nombre = "Programación I", Codigo = "PROG101", Creditos = 3, Descripcion = "Fundamentos de programación", CreatedAt = now, IsDeleted = false },
                 new Materia { MateriaId = 2, Nombre = "Bases de Datos", Codigo = "BD102", Creditos = 3, Descripcion = "Diseño y gestión de BD", CreatedAt = now, IsDeleted = false },
@@ -159,7 +147,6 @@ namespace StudentRegistration.Infrastructure.Data
                 new Materia { MateriaId = 10, Nombre = "Arquitectura de Software", Codigo = "ARQ110", Creditos = 3, Descripcion = "Patrones", CreatedAt = now, IsDeleted = false }
             );
 
-            // Seed ProfesorMaterias
             modelBuilder.Entity<ProfesorMateria>().HasData(
                 new ProfesorMateria { ProfesorMateriaId = 1, ProfesorId = 1, MateriaId = 1, CreatedAt = now, IsDeleted = false },
                 new ProfesorMateria { ProfesorMateriaId = 2, ProfesorId = 1, MateriaId = 2, CreatedAt = now, IsDeleted = false },
@@ -173,16 +160,11 @@ namespace StudentRegistration.Infrastructure.Data
                 new ProfesorMateria { ProfesorMateriaId = 10, ProfesorId = 5, MateriaId = 10, CreatedAt = now, IsDeleted = false }
             );
 
-            // Seed Usuario Admin
             modelBuilder.Entity<Usuario>().HasData(new Usuario
             {
                 UsuarioId = 1,
                 Username = "admin",
                 Email = "admin@universidad.edu",
-                // Credenciales demo (Swagger): username=admin, password=Admin123*
-                // Hash: BCrypt work factor 12 (legacy format, still supported for backward compatibility)
-                // New passwords use ASP.NET Core Identity PasswordHasher (PBKDF2-HMAC-SHA256)
-                // This legacy hash will be auto-upgraded on next login
                 PasswordHash = "$2a$12$.kEz7r8WYD4fp.d0gwkml.RrsSHQWG1i1J6vyF/BL3RohOIoG3NSi",
                 Rol = "Admin",
                 CreatedAt = now,

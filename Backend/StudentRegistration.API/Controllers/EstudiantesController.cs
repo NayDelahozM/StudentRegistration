@@ -29,7 +29,6 @@ namespace StudentRegistration.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            // Fix Problema #2: Validar autorización por estudiante
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, id))
             {
                 return StatusCode(403, new { message = "No tienes permiso para ver los datos de este estudiante" });
@@ -50,7 +49,7 @@ namespace StudentRegistration.API.Controllers
         public async Task<IActionResult> Create([FromBody] CreateEstudianteDto dto)
         {
             var result = await _estudianteService.CreateAsync(dto);
-            
+
             if (!result.IsSuccess)
             {
                 return BadRequest(new { message = result.Message, errors = result.Errors });
@@ -64,10 +63,10 @@ namespace StudentRegistration.API.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateEstudianteDto dto)
         {
             var result = await _estudianteService.UpdateAsync(id, dto);
-            
+
             if (!result.IsSuccess)
             {
-                return result.Message.Contains("no encontrado") 
+                return result.Message.Contains("no encontrado")
                     ? NotFound(new { message = result.Message })
                     : BadRequest(new { message = result.Message, errors = result.Errors });
             }
@@ -80,7 +79,7 @@ namespace StudentRegistration.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _estudianteService.DeleteAsync(id);
-            
+
             if (!result.IsSuccess)
             {
                 return NotFound(new { message = result.Message });
@@ -92,7 +91,6 @@ namespace StudentRegistration.API.Controllers
         [HttpGet("{id}/companeros")]
         public async Task<IActionResult> GetCompañeros(int id)
         {
-            // Fix Problema #2: Validar autorización por estudiante
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, id))
             {
                 return StatusCode(403, new { message = "No tienes permiso para ver los compañeros de este estudiante" });

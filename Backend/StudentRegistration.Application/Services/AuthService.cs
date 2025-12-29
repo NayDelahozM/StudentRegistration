@@ -55,12 +55,10 @@ namespace StudentRegistration.Application.Services
                 return Result<LoginResponseDto>.Failure("El nombre de usuario ya existe");
             }
 
-            // Patrón B: Usar transacción con CommitAsync único (sin SaveChangesAsync intermedios)
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
 
-                // Crear el estudiante
                 var estudiante = new Estudiante
                 {
                     Nombre = request.Nombre,
@@ -73,28 +71,22 @@ namespace StudentRegistration.Application.Services
 
                 await _unitOfWork.Estudiantes.AddAsync(estudiante);
 
-                // Crear el usuario (EstudianteId se asignará durante CommitAsync)
                 var usuario = new Usuario
                 {
                     Username = request.Username,
                     Email = request.Email,
                     Rol = "Estudiante",
-                    PasswordHash = string.Empty // Se asignará después
+                    PasswordHash = string.Empty
                 };
 
-                // Hash password usando el usuario ya creado
                 usuario.PasswordHash = HashPassword(usuario, request.Password);
 
                 await _unitOfWork.Usuarios.AddAsync(usuario);
 
-                // IMPORTANTE: Establecer la relación ANTES del Commit
-                // EF Core detectará que estudiante.EstudianteId se generará y lo usará
                 usuario.Estudiante = estudiante;
 
-                // CommitAsync hace SaveChangesAsync internamente y commitea la transacción
                 await _unitOfWork.CommitAsync();
 
-                // Generar token (ahora incluirá el claim studentId)
                 var token = _jwtService.GenerateToken(usuario);
                 var response = new LoginResponseDto
                 {
@@ -110,13 +102,6 @@ namespace StudentRegistration.Application.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                // Log del error interno para depuración
-                Console.WriteLine($"Error en registro: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"InnerException: {ex.InnerException.Message}");
-                }
                 return Result<LoginResponseDto>.Failure($"Error al crear el usuario y estudiante: {ex.Message}");
             }
         }
@@ -130,5 +115,5 @@ namespace StudentRegistration.Application.Services
         {
             return _passwordHasher.Verify(usuario, password, hash);
         }
-}
+    }
 }

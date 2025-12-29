@@ -25,7 +25,8 @@ namespace StudentRegistration.API.Controllers
         [HttpPost("validar")]
         public async Task<IActionResult> Validar([FromBody] CreateInscripcionDto dto)
         {
-            // Fix Problema #2: Validar autorización por estudiante
+            // SEGURIDAD: Validar que el estudiante del JWT coincida con el del request
+            // PREVIENE: Estudiantes inscribiéndose a otros estudiantes (IDOR/authorization bypass)
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudianteId))
             {
                 return StatusCode(403, new { message = "No tienes permiso para validar inscripciones de este estudiante" });
@@ -44,7 +45,8 @@ namespace StudentRegistration.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Inscribir([FromBody] CreateInscripcionDto dto)
         {
-            // Fix Problema #2: Validar autorización por estudiante
+            // SEGURIDAD: Validar que el estudiante del JWT coincida con el del request
+            // PREVIENE: Estudiantes inscribiéndose a otros estudiantes (IDOR/authorization bypass)
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudianteId))
             {
                 _logger.LogWarning("Usuario {Username} intentó inscribir al estudiante {EstudianteId} sin permiso",
@@ -70,7 +72,7 @@ namespace StudentRegistration.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Cancelar(int id)
         {
-            // Obtener la inscripción para validar autorización
+            // NECESARIO: Obtener inscripción primero para extraer EstudianteId y validar autorización
             var inscripciones = await _inscripcionService.GetInscripcionByIdAsync(id);
 
             if (!inscripciones.IsSuccess || inscripciones.Data == null)
@@ -78,7 +80,8 @@ namespace StudentRegistration.API.Controllers
                 return NotFound(new { message = "Inscripción no encontrada" });
             }
 
-            // Validar autorización: los estudiantes solo pueden cancelar sus propias inscripciones
+            // SEGURIDAD: Validar que el estudiante del JWT coincida con el de la inscripción
+            // PREVIENE: Estudiantes cancelando inscripciones de otros estudiantes
             var inscripcion = inscripciones.Data;
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, inscripcion.EstudianteId))
             {
@@ -111,7 +114,7 @@ namespace StudentRegistration.API.Controllers
         [HttpGet("materias-disponibles/{estudianteId}")]
         public async Task<IActionResult> GetMateriasDisponibles(int estudianteId)
         {
-            // Fix Problema #2: Validar autorización por estudiante
+            // SEGURIDAD: Validar que el estudiante del JWT coincida con el del request
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, estudianteId))
             {
                 return StatusCode(403, new { message = "No tienes permiso para ver las materias disponibles de este estudiante" });

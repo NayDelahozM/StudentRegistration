@@ -5,15 +5,10 @@ using System.Security.Claims;
 
 namespace StudentRegistration.API.Helpers
 {
-    /// <summary>
-    /// Helper para validación de autorización por estudiante
-    /// Fix Problema #2: Autorización real por estudiante
-    /// </summary>
     public static class AuthorizationHelper
     {
-        /// <summary>
-        /// Obtiene el studentId del claim del token JWT
-        /// </summary>
+        // OBTIENE studentId del claim "studentId" del JWT (agregado en JwtService)
+        // RETURNS: null si el claim no existe (tokens antiguos sin studentId)
         public static int? GetStudentIdFromToken(HttpContext httpContext)
         {
             var studentIdClaim = httpContext.User?.FindFirst("studentId");
@@ -26,30 +21,24 @@ namespace StudentRegistration.API.Helpers
             return null;
         }
 
-        /// <summary>
-        /// Obtiene el rol del usuario autenticado
-        /// </summary>
         public static string GetUserRole(HttpContext httpContext)
         {
             return httpContext.User?.FindFirst(ClaimTypes.Role)?.Value;
         }
 
-        /// <summary>
-        /// Valida si el usuario tiene rol Admin
-        /// </summary>
         public static bool IsAdmin(HttpContext httpContext)
         {
             return GetUserRole(httpContext) == "Admin";
         }
 
-        /// <summary>
-        /// Valida si el usuario autenticado puede acceder a los datos del estudiante especificado.
-        /// Los Admins pueden acceder a cualquier estudiante.
-        /// Los Estudiantes solo pueden acceder a sus propios datos.
-        /// </summary>
-        /// <param name="httpContext">Contexto HTTP actual</param>
-        /// <param name="requestedStudentId">ID del estudiante que se intenta acceder</param>
-        /// <returns>True si tiene acceso, false si no</returns>
+        // AUTORIZACIÓN POR RECURSO: Valida si el usuario puede acceder a datos del estudiante
+        // ADMIN: Acceso total a cualquier estudiante
+        // ESTUDIANTE: Solo puede acceder a sus propios datos (studentId debe coincidir)
+        //
+        // PREVIENE: IDOR (Insecure Direct Object Reference) - estudiante operando datos de otro
+        //
+        // RIESGO: Si studentId es null (token antiguo), deniega acceso por seguridad
+        // SOLUTION: Usuario debe re-loguearse para obtener token con studentId
         public static bool CanAccessStudentData(HttpContext httpContext, int requestedStudentId)
         {
             var userRole = GetUserRole(httpContext);
@@ -70,7 +59,8 @@ namespace StudentRegistration.API.Helpers
                     return studentId.Value == requestedStudentId;
                 }
 
-                // Si el estudiante no tiene studentId en el token (registro antiguo), denegar acceso
+                // Token antiguo sin studentId - denegar por seguridad
+                // Usuario debe re-loguearse para obtener token actualizado con studentId
                 return false;
             }
 
@@ -78,9 +68,6 @@ namespace StudentRegistration.API.Helpers
             return false;
         }
 
-        /// <summary>
-        /// Valida si el usuario autenticado puede inscribir al estudiante especificado.
-        /// </summary>
         public static bool CanEnrollStudent(HttpContext httpContext, int estudianteId)
         {
             return CanAccessStudentData(httpContext, estudianteId);

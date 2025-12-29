@@ -25,13 +25,10 @@ export class AuthService {
   }
 
   register(request: RegisterRequest): Observable<LoginResponse> {
-    console.log('Enviando solicitud de registro:', request);
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, request).pipe(
       tap(response => {
-        console.log('Respuesta de registro exitosa:', response);
         this.storeToken(response.token);
         this.storeUser(response);
-        console.log('Usuario almacenado:', this.currentUserSubject.value);
       })
     );
   }

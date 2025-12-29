@@ -24,7 +24,6 @@ namespace StudentRegistration.Application.Services
             _mapper = mapper;
         }
 
-        // Fix Problema #8: GetAll ahora devuelve DTO simplificado (solo nombre/apellido) para cumplir requisito de negocio
         public async Task<Result<IEnumerable<EstudianteSummaryDto>>> GetAllAsync()
         {
             var estudiantes = await _unitOfWork.Estudiantes.GetAllAsync();
@@ -48,7 +47,7 @@ namespace StudentRegistration.Application.Services
         public async Task<Result<EstudianteDto>> GetByIdAsync(int id)
         {
             var estudiante = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(id);
-            
+
             if (estudiante == null)
             {
                 return Result<EstudianteDto>.Failure("Estudiante no encontrado");
@@ -72,7 +71,6 @@ namespace StudentRegistration.Application.Services
                 var estudiante = _mapper.Map<Estudiante>(dto);
                 await _unitOfWork.Estudiantes.AddAsync(estudiante);
 
-                // CommitAsync hace SaveChangesAsync internamente
                 await _unitOfWork.CommitAsync();
 
                 var result = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(estudiante.EstudianteId);
@@ -110,7 +108,6 @@ namespace StudentRegistration.Application.Services
 
                 await _unitOfWork.Estudiantes.UpdateAsync(estudiante);
 
-                // CommitAsync hace SaveChangesAsync internamente
                 await _unitOfWork.CommitAsync();
 
                 var result = await _unitOfWork.Estudiantes.GetWithInscripcionesAsync(id);
@@ -143,7 +140,6 @@ namespace StudentRegistration.Application.Services
 
                 await _unitOfWork.Estudiantes.UpdateAsync(estudiante);
 
-                // CommitAsync hace SaveChangesAsync internamente
                 await _unitOfWork.CommitAsync();
 
                 return Result.Success("Estudiante eliminado exitosamente");
@@ -164,13 +160,10 @@ namespace StudentRegistration.Application.Services
                 return Result<IEnumerable<CompañeroClaseDto>>.Success(new List<CompañeroClaseDto>());
             }
 
-            // Obtener todos los IDs de materia del estudiante
             var materiaIds = inscripciones.Select(i => i.MateriaId).ToList();
 
-            // Optimized: Get classmates with direct SQL projection (single query, no N+1)
             var companerosData = await _unitOfWork.Inscripciones.GetCompañerosByMateriasAsync(materiaIds, estudianteId);
 
-            // Map tuples to DTOs
             var companeros = companerosData.Select(c => new CompañeroClaseDto
             {
                 EstudianteNombre = c.EstudianteNombre,

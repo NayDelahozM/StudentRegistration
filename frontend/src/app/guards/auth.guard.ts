@@ -40,7 +40,6 @@ export const adminGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // User is logged in but not an admin
   router.navigate(['/unauthorized'], {
     state: {
       message: 'Esta página es exclusiva para administradores. No tienes los permisos necesarios.',
@@ -68,7 +67,6 @@ export const estudianteGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // User is logged in but not a student
   router.navigate(['/unauthorized'], {
     state: {
       message: 'Esta página es exclusiva para estudiantes. No tienes los permisos necesarios.',
