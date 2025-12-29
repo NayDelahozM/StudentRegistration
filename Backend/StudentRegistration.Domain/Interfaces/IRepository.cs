@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using StudentRegistration.Domain.Entities;
@@ -24,6 +25,7 @@ namespace StudentRegistration.Domain.Interfaces
         Task<IEnumerable<Estudiante>> GetAllWithInscripcionesAsync();
         Task<bool> EmailExistsAsync(string email, int? excludeId = null);
         Task<Estudiante> GetByEmailAsync(string email);
+        Task<IQueryable<Estudiante>> GetAsQueryableAsync();
     }
 
     public interface IInscripcionRepository : IRepository<Inscripcion>

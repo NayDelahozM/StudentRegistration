@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using StudentRegistration.Application.Services;
+using StudentRegistration.Application.Interfaces;
 using StudentRegistration.Domain.Entities;
 using System;
 using System.Collections.Generic;

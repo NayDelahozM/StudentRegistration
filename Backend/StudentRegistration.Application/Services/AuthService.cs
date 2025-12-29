@@ -9,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace StudentRegistration.Application.Services
 {
-    public interface IJwtService
-    {
-        string GenerateToken(Usuario usuario);
-    }
-
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;

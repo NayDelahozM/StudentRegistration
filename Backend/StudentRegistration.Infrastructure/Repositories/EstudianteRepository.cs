@@ -49,5 +49,15 @@ namespace StudentRegistration.Infrastructure.Repositories
             return await _context.Set<Estudiante>()
                 .FirstOrDefaultAsync(e => e.Email == email && !e.IsDeleted);
         }
+
+        public async Task<IQueryable<Estudiante>> GetAsQueryableAsync()
+        {
+            // Return Task for consistency with async pattern, though the operation is synchronous
+            return await Task.FromResult(
+                _context.Set<Estudiante>()
+                    .Where(e => !e.IsDeleted)
+                    .OrderBy(e => e.EstudiantId)
+            );
+        }
     }
 }

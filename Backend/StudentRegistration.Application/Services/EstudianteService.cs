@@ -1,4 +1,5 @@
 using AutoMapper;
+using StudentRegistration.Application.Common;
 using StudentRegistration.Application.DTOs.Estudiante;
 using StudentRegistration.Application.DTOs.Inscripcion;
 using StudentRegistration.Application.Interfaces;
@@ -29,6 +30,19 @@ namespace StudentRegistration.Application.Services
             var estudiantes = await _unitOfWork.Estudiantes.GetAllAsync();
             var dtos = _mapper.Map<IEnumerable<EstudianteSummaryDto>>(estudiantes);
             return Result<IEnumerable<EstudianteSummaryDto>>.Success(dtos);
+        }
+
+        /// <summary>
+        /// Get paginated list of students (optimized for 100k+ records)
+        /// </summary>
+        public async Task<Result<PaginatedList<EstudianteSummaryDto>>> GetAllPaginatedAsync(int pageNumber, int pageSize)
+        {
+            var query = await _unitOfWork.Estudiantes.GetAsQueryableAsync();
+            var count = query.Count();
+            var items = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            var dtos = _mapper.Map<List<EstudianteSummaryDto>>(items);
+            var paginatedList = new PaginatedList<EstudianteSummaryDto>(dtos, count, pageNumber, pageSize);
+            return Result<PaginatedList<EstudianteSummaryDto>>.Success(paginatedList);
         }
 
         public async Task<Result<EstudianteDto>> GetByIdAsync(int id)
