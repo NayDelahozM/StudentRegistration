@@ -17,7 +17,7 @@ interface ValidacionResponse {
   providedIn: 'root'
 })
 export class InscripcionService {
-  private apiUrl = 'https://localhost:5001/api/inscripciones';
+  private apiUrl = 'http://localhost:5000/api/inscripciones';
 
   constructor(private http: HttpClient) {}
 

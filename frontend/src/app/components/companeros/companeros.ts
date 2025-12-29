@@ -84,12 +84,13 @@ export class CompanerosComponent implements OnInit {
       next: (data) => {
         this.companeros = data || [];
         this.agruparCompanerosPorMateria();
-        this.loading = false;
-        this.cdr.detectChanges();
 
         if (!data || data.length === 0) {
           this.error = 'No tienes compañeros de clase aún. Sé el primero en inscribirte a materias.';
         }
+
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error en subscribe:', err);

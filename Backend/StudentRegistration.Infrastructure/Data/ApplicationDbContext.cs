@@ -182,7 +182,7 @@ namespace StudentRegistration.Infrastructure.Data
                 // Credenciales demo (Swagger): username=admin, password=Admin123*
                 // Hash: BCrypt work factor 12
                 // Generated using: PasswordHasher.Hash("Admin123*")
-                PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIw7P6aXq",
+                PasswordHash = "$2a$12$.kEz7r8WYD4fp.d0gwkml.RrsSHQWG1i1J6vyF/BL3RohOIoG3NSi",
                 Rol = "Admin",
                 CreatedAt = now,
                 IsDeleted = false
