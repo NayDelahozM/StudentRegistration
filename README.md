@@ -512,21 +512,6 @@ Authorization: Bearer <token_estudiante>
 # Array con { estudianteNombre: "Juan Perez", materiaNombre: "Programación I" }
 # NOTA: NO incluye email, teléfono, dirección
 ```
-
-### Endpoints Críticos
-
-| Método | Endpoint | Autenticación | Autorización |
-|--------|----------|---------------|--------------|
-| `POST` | `/api/auth/login` | ❌ No | - |
-| `POST` | `/api/auth/register` | ❌ No | - |
-| `GET` | `/api/estudiantes` | ✅ Sí | Solo Admin |
-| `GET` | `/api/estudiantes/{id}` | ✅ Sí | Admin o propio estudiante |
-| `GET` | `/api/estudiantes/{id}/companeros` | ✅ Sí | Admin o propio estudiante |
-| `POST` | `/api/inscripciones` | ✅ Sí | Admin o propio estudiante |
-| `DELETE` | `/api/inscripciones/{id}` | ✅ Sí | Admin o propio estudiante |
-| `GET` | `/api/inscripciones/todas` | ✅ Sí | Solo Admin |
-| `GET` | `/api/inscripciones/materias-disponibles/{id}` | ✅ Sí | Admin o propio estudiante |
-
 ---
 
 
