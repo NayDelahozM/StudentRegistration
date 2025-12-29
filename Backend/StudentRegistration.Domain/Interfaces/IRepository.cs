@@ -35,6 +35,9 @@ namespace StudentRegistration.Domain.Interfaces
         Task<bool> TieneProfesorAsync(int estudianteId, int profesorId);
         Task<bool> ExisteInscripcionAsync(int estudianteId, int materiaId);
         Task<IEnumerable<Inscripcion>> GetAllWithRelationsAsync();
+
+        // Optimized method to get classmates with direct SQL projection
+        Task<(string EstudianteNombre, string MateriaNombre)[]> GetCompañerosByMateriasAsync(List<int> materiaIds, int excludeEstudianteId);
     }
 
     public interface IMateriaRepository : IRepository<Materia>

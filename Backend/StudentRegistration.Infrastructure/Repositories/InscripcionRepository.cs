@@ -75,5 +75,22 @@ namespace StudentRegistration.Infrastructure.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<(string EstudianteNombre, string MateriaNombre)[]> GetCompañerosByMateriasAsync(List<int> materiaIds, int excludeEstudianteId)
+        {
+            // Optimized query with direct SQL projection (no N+1 problem)
+            var result = await _context.Set<Inscripcion>()
+                .Where(i => materiaIds.Contains(i.MateriaId) && i.EstudiantId != excludeEstudianteId && !i.IsDeleted)
+                .Select(i => new
+                {
+                    EstudianteNombre = i.Estudiante.Nombre + " " + i.Estudiante.Apellido,
+                    MateriaNombre = i.Materia.Nombre
+                })
+                .AsNoTracking()
+                .ToArrayAsync();
+
+            // Convert anonymous type to ValueTuple array
+            return result.Select(x => (x.EstudianteNombre, x.MateriaNombre)).ToArray();
+        }
     }
 }

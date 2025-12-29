@@ -153,7 +153,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
@@ -196,15 +195,5 @@ app.UseCors(app.Environment.IsDevelopment() ? "AllowAll" : "AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
-
-app.MapGet("/api/info", () => Results.Ok(new
-{
-    application = "Student Registration API",
-    version = "1.0.0",
-    database = "SQL Server",
-    environment = app.Environment.EnvironmentName,
-    timestamp = DateTime.UtcNow
-})).WithTags("Info");
 
 app.Run();

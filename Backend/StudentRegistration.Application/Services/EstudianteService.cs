@@ -117,18 +117,15 @@ namespace StudentRegistration.Application.Services
             // Obtener todos los IDs de materia del estudiante
             var materiaIds = inscripciones.Select(i => i.MateriaId).ToList();
 
-            // Obtener todas las inscripciones de esas materias en una sola consulta
-            var todasLasInscripciones = await _unitOfWork.Inscripciones.GetByMateriasAsync(materiaIds);
+            // Optimized: Get classmates with direct SQL projection (single query, no N+1)
+            var companerosData = await _unitOfWork.Inscripciones.GetCompañerosByMateriasAsync(materiaIds, estudianteId);
 
-            // Filtrar: Excluir al estudiante mismo y procesar en memoria
-            var companeros = todasLasInscripciones
-                .Where(i => i.EstudiantId != estudianteId)
-                .Select(i => new CompañeroClaseDto
-                {
-                    EstudianteNombre = $"{i.Estudiante.Nombre} {i.Estudiante.Apellido}",
-                    MateriaNombre = i.Materia.Nombre
-                })
-                .ToList();
+            // Map tuples to DTOs
+            var companeros = companerosData.Select(c => new CompañeroClaseDto
+            {
+                EstudianteNombre = c.EstudianteNombre,
+                MateriaNombre = c.MateriaNombre
+            });
 
             return Result<IEnumerable<CompañeroClaseDto>>.Success(companeros);
         }

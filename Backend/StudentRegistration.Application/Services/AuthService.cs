@@ -75,6 +75,7 @@ namespace StudentRegistration.Application.Services
                 };
 
                 await _unitOfWork.Estudiantes.AddAsync(estudiante);
+                // SaveChanges needed to get the generated EstudiantId before creating Usuario
                 await _unitOfWork.SaveChangesAsync();
 
                 // Crear el usuario asociado al estudiante
@@ -90,7 +91,7 @@ namespace StudentRegistration.Application.Services
                 await _unitOfWork.Usuarios.AddAsync(usuario);
                 await _unitOfWork.SaveChangesAsync();
 
-                // Commit de la transacción
+                // Commit the transaction (all changes are already saved, this just commits the transaction)
                 await _unitOfWork.CommitAsync();
 
                 // Generar token (ahora incluirá el claim studentId)

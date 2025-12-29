@@ -101,7 +101,7 @@ export class EstudiantesListComponent implements OnInit {
           email: data.email,
           telefono: data.telefono,
           direccion: data.direccion,
-          fechaNacimiento: data.fechaNacimiento || ''
+          fechaNacimiento: this.formatDateForInput(data.fechaNacimiento)
         };
         this.showEditModal = true;
         this.loading = false;
@@ -235,5 +235,25 @@ export class EstudiantesListComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  // Formatea la fecha al formato YYYY-MM-DD esperado por input type="date"
+  private formatDateForInput(dateString: string | undefined): string {
+    if (!dateString) return '';
+
+    try {
+      const date = new Date(dateString);
+      // Verificar si es una fecha válida
+      if (isNaN(date.getTime())) return '';
+
+      // Convertir a formato YYYY-MM-DD (local time, no UTC)
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    } catch {
+      return '';
+    }
   }
 }

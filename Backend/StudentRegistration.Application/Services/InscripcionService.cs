@@ -125,7 +125,7 @@ namespace StudentRegistration.Application.Services
                     await _unitOfWork.Inscripciones.AddAsync(inscripcion);
                 }
 
-                await _unitOfWork.SaveChangesAsync();
+                // CommitAsync already calls SaveChangesAsync internally
                 await _unitOfWork.CommitAsync();
 
                 var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(dto.EstudiantId);

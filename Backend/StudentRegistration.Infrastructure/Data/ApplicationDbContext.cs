@@ -180,9 +180,9 @@ namespace StudentRegistration.Infrastructure.Data
                 Username = "admin",
                 Email = "admin@universidad.edu",
                 // Credenciales demo (Swagger): username=admin, password=Admin123*
-            // Hash: SHA256(UTF8) -> Base64
-                // Nota: en producción deberías usar un hash con salt (PBKDF2/bcrypt/Argon2). Para la prueba basta.
-                PasswordHash = "ClvD40JDLxutkv/VG3hTQ+xykGzbpqJhMQYLAI54ZlY=",
+                // Hash: BCrypt work factor 12
+                // Generated using: PasswordHasher.Hash("Admin123*")
+                PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIw7P6aXq",
                 Rol = "Admin",
                 CreatedAt = now,
                 IsDeleted = false
