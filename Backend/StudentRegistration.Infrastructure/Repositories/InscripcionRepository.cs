@@ -18,6 +18,7 @@ namespace StudentRegistration.Infrastructure.Repositories
                 .Include(i => i.Profesor)
                 .Include(i => i.Estudiante)
                 .Where(i => i.EstudiantId == estudianteId && !i.IsDeleted)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -27,6 +28,18 @@ namespace StudentRegistration.Infrastructure.Repositories
                 .Include(i => i.Estudiante)
                 .Include(i => i.Profesor)
                 .Where(i => i.MateriaId == materiaId && !i.IsDeleted)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Inscripcion>> GetByMateriasAsync(List<int> materiaIds)
+        {
+            return await _context.Set<Inscripcion>()
+                .Include(i => i.Estudiante)
+                .Include(i => i.Profesor)
+                .Include(i => i.Materia)
+                .Where(i => materiaIds.Contains(i.MateriaId) && !i.IsDeleted)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -47,9 +60,20 @@ namespace StudentRegistration.Infrastructure.Repositories
         public async Task<bool> ExisteInscripcionAsync(int estudianteId, int materiaId)
         {
             return await _context.Set<Inscripcion>()
-                .AnyAsync(i => i.EstudiantId == estudianteId && 
-                              i.MateriaId == materiaId && 
+                .AnyAsync(i => i.EstudiantId == estudianteId &&
+                              i.MateriaId == materiaId &&
                               !i.IsDeleted);
+        }
+
+        public async Task<IEnumerable<Inscripcion>> GetAllWithRelationsAsync()
+        {
+            return await _context.Set<Inscripcion>()
+                .Include(i => i.Estudiante)
+                .Include(i => i.Materia)
+                .Include(i => i.Profesor)
+                .Where(i => !i.IsDeleted)
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

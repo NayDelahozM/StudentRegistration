@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { EstudianteService } from '../../services/estudiante.service';
 import { AuthService } from '../../services/auth.service';
 import { CompaneroClase } from '../../models/estudiante.interface';
+import { catchError, timeout } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 interface CompaneroGroup {
   materia: string;
@@ -23,17 +25,20 @@ export class CompanerosComponent implements OnInit {
   loading = false;
   error = '';
   estudiantId: number | null = null;
+  esErrorAdmin = false;
 
   constructor(
     private estudianteService: EstudianteService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     // Los administradores no tienen compañeros de clase
     if (this.authService.isAdmin()) {
       this.error = 'Los administradores no pueden ver compañeros de clase. Esta función es solo para estudiantes.';
+      this.esErrorAdmin = true;
       return;
     }
 
@@ -56,16 +61,41 @@ export class CompanerosComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.estudianteService.getCompañeros(this.estudiantId).subscribe({
+    this.estudianteService.getCompañeros(this.estudiantId).pipe(
+      timeout(15000), // 15 segundos de timeout
+      catchError(err => {
+        console.error('Error al cargar compañeros:', err);
+
+        if (err.name === 'TimeoutError') {
+          this.error = 'La petición está tardando demasiado. Puede que haya demasiados estudiantes inscritos.';
+        } else if (err.status === 401) {
+          this.error = 'Tu sesión expiró. Por favor cierra sesión y vuelve a ingresar.';
+        } else if (err.status === 403) {
+          this.error = 'No tienes permiso. Usa tu propia cuenta de estudiante.';
+        } else {
+          this.error = `Error: ${err.message || err.status || 'Desconocido'}`;
+        }
+
+        this.loading = false;
+        this.cdr.detectChanges();
+        return of([]);
+      })
+    ).subscribe({
       next: (data) => {
-        this.companeros = data;
+        this.companeros = data || [];
         this.agruparCompanerosPorMateria();
         this.loading = false;
+        this.cdr.detectChanges();
+
+        if (!data || data.length === 0) {
+          this.error = 'No tienes compañeros de clase aún. Sé el primero en inscribirte a materias.';
+        }
       },
       error: (err) => {
-        console.error('Error al cargar compañeros:', err);
-        this.error = 'Error al cargar compañeros de clase. Por favor intenta nuevamente.';
+        console.error('Error en subscribe:', err);
         this.loading = false;
+        this.error = `Error: ${err.message || err.status || 'Desconocido'}`;
+        this.cdr.detectChanges();
       }
     });
   }

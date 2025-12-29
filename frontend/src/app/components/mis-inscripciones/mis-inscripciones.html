@@ -2,14 +2,21 @@
   <header class="page-header">
     <button (click)="goBack()" class="btn-back">← Volver</button>
     <div class="header-content">
-      <h1>📚 Mis Inscripciones</h1>
-      <p class="subtitle">Inscríbete a tus materias (máximo {{ maxMaterias }})</p>
+      <h1>📚 Inscribir Materias</h1>
+      <p class="subtitle" *ngIf="!limiteAlcanzado">Selecciona las materias disponibles (máximo {{ maxMaterias }} materias o {{ maxCreditos }} créditos)</p>
+      <p class="subtitle" *ngIf="limiteAlcanzado">Has alcanzado el máximo de materias permitidas</p>
     </div>
   </header>
 
   <div *ngIf="loading" class="loading-container">
     <div class="spinner"></div>
     <p>Cargando materias disponibles...</p>
+    <p class="debug-info">{{ debugInfo }}</p>
+    <p class="debug-info">Token: {{ authService.getToken() ? 'Sí (' + (authService.getToken()?.length || 0) + ' caracteres)' : 'No' }}</p>
+    <p class="debug-info">Si ves esto por más de 10 segundos, la petición está colgada.</p>
+    <button (click)="cargarMateriasDisponibles(authService.getEstudiantId()!)" class="btn-retry">
+      Reintentar
+    </button>
   </div>
 
   <div *ngIf="!loading" class="content-container">
@@ -21,20 +28,32 @@
       ✅ {{ mensajeExito }}
     </div>
 
-    <div class="selection-info">
+    <div class="selection-info" *ngIf="!limiteAlcanzado">
       <div class="info-card">
-        <span class="label">Materias seleccionadas:</span>
+        <span class="label">Materias seleccionadas para inscribirse:</span>
         <span class="count">{{ materiasSeleccionadas.size }} / {{ maxMaterias }}</span>
       </div>
       <div class="info-card">
+        <span class="label">Créditos seleccionados:</span>
+        <span class="count">{{ getTotalCreditos() }} / {{ maxCreditos }} máximo</span>
+      </div>
+    </div>
+
+    <div class="selection-info" *ngIf="limiteAlcanzado">
+      <div class="info-card">
+        <span class="label">Materias inscritas:</span>
+        <span class="count">{{ materiasDisponibles.length }} / {{ maxMaterias }}</span>
+      </div>
+      <div class="info-card">
         <span class="label">Créditos totales:</span>
-        <span class="count">{{ getTotalCreditos() }}</span>
+        <span class="count">{{ getCreditosInscritos() }} / {{ maxCreditos }}</span>
       </div>
     </div>
 
     <div *ngIf="materiasDisponibles.length === 0" class="empty-state">
       <div class="empty-icon">📭</div>
       <h3>No hay materias disponibles</h3>
+      <p>Ya has alcanzado el máximo de materias permitidas ({{ maxMaterias }}) o 9 créditos.</p>
     </div>
 
     <div class="materias-grid">
@@ -43,10 +62,15 @@
         class="materia-card"
         [class.selected]="isSelected(materia.materiaId)"
         [class.disabled]="!materia.disponible"
+        [class.inscrita]="materia.motivoNoDisponible === 'Ya inscrito'"
         (click)="materia.disponible ? toggleMateria(materia.materiaId) : null"
       >
         <div class="card-header">
           <div class="check-icon" *ngIf="isSelected(materia.materiaId)">✓</div>
+          <div class="status-icon" *ngIf="!materia.disponible">
+            <span *ngIf="materia.motivoNoDisponible === 'Ya inscrito'">✓</span>
+            <span *ngIf="materia.motivoNoDisponible !== 'Ya inscrito'">🔒</span>
+          </div>
           <h3>{{ materia.nombre }}</h3>
           <span class="badge">{{ materia.codigo }}</span>
         </div>
@@ -74,7 +98,7 @@
       </div>
     </div>
 
-    <div class="actions-container" *ngIf="materiasDisponibles.length > 0">
+    <div class="actions-container" *ngIf="materiasDisponibles.length > 0 && !limiteAlcanzado">
       <button
         (click)="inscribirse()"
         [disabled]="inscribiendo || materiasSeleccionadas.size === 0"

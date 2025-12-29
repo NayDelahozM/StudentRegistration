@@ -42,6 +42,18 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'mi-perfil',
+    loadComponent: () => import('./components/mi-perfil/mi-perfil')
+      .then(m => m.MiPerfilComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'todas-inscripciones',
+    loadComponent: () => import('./components/todas-inscripciones/todas-inscripciones')
+      .then(m => m.TodasInscripcionesComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: '/login'
   }

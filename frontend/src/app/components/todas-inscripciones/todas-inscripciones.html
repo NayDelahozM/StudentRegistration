@@ -1,0 +1,76 @@
+<div class="todas-inscripciones-container">
+  <header class="page-header">
+    <button (click)="goBack()" class="btn-back">← Volver</button>
+    <div class="header-content">
+      <h1>📋 Todas las Inscripciones</h1>
+      <p class="subtitle">Administrar inscripciones de todos los estudiantes</p>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando inscripciones...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="content-container">
+    <div class="info-banner">
+      <span class="info-icon">ℹ️</span>
+      <span>Visualizando todas las inscripciones del sistema. Total: <strong>{{ inscripciones.length }}</strong></span>
+    </div>
+
+    <div *ngIf="inscripciones.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No hay inscripciones registradas</h3>
+      <p>Aún no hay estudiantes inscritos en ninguna materia.</p>
+    </div>
+
+    <div class="inscripciones-table" *ngIf="inscripciones.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Estudiante</th>
+            <th>Materia</th>
+            <th>Profesor</th>
+            <th>Fecha de Inscripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inscripcion of inscripciones">
+            <td class="id-cell">{{ inscripcion.inscripcionId }}</td>
+            <td class="student-cell">
+              <div class="student-info">
+                <span class="student-name">{{ inscripcion.estudianteNombre }}</span>
+                <span class="student-email">{{ inscripcion.estudianteEmail }}</span>
+              </div>
+            </td>
+            <td class="materia-cell">
+              <span class="badge materia-badge">{{ inscripcion.materiaNombre }}</span>
+            </td>
+            <td class="profesor-cell">
+              <span class="profesor-name">{{ inscripcion.profesorNombre }}</span>
+            </td>
+            <td class="date-cell">
+              {{ inscripcion.fechaInscripcion | date:'dd/MM/yyyy' }}
+            </td>
+            <td class="actions-cell">
+              <button
+                (click)="cancelarInscripcion(inscripcion.inscripcionId, inscripcion.estudianteNombre, inscripcion.materiaNombre)"
+                class="btn-cancel"
+                [disabled]="loading"
+                title="Cancelar inscripción">
+                🗑️ Cancelar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

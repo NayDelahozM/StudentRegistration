@@ -191,5 +191,39 @@ namespace StudentRegistration.Application.Services
 
             return Result<IEnumerable<MateriaDisponibleDto>>.Success(resultado);
         }
+
+        public async Task<Result<InscripcionDto>> GetInscripcionByIdAsync(int inscripcionId)
+        {
+            var inscripcion = await _unitOfWork.Inscripciones.GetByIdAsync(inscripcionId);
+
+            if (inscripcion == null)
+            {
+                return Result<InscripcionDto>.Failure("Inscripción no encontrada");
+            }
+
+            var dto = _mapper.Map<InscripcionDto>(inscripcion);
+            return Result<InscripcionDto>.Success(dto);
+        }
+
+        public async Task<Result<IEnumerable<InscripcionDto>>> GetAllAsync()
+        {
+            var inscripciones = await _unitOfWork.Inscripciones.GetAllWithRelationsAsync();
+
+            var dtos = inscripciones.Select(i => new InscripcionDto
+            {
+                InscripcionId = i.InscripcionId,
+                EstudiantId = i.EstudiantId,
+                EstudianteNombre = $"{i.Estudiante.Nombre} {i.Estudiante.Apellido}",
+                EstudianteEmail = i.Estudiante.Email,
+                MateriaId = i.MateriaId,
+                MateriaNombre = i.Materia.Nombre,
+                MateriaCode = i.Materia.Codigo,
+                ProfesorId = i.ProfesorId,
+                ProfesorNombre = $"{i.Profesor.Nombre} {i.Profesor.Apellido}",
+                FechaInscripcion = i.CreatedAt
+            });
+
+            return Result<IEnumerable<InscripcionDto>>.Success(dtos);
+        }
     }
 }

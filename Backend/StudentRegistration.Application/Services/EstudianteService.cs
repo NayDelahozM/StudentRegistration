@@ -108,22 +108,27 @@ namespace StudentRegistration.Application.Services
         public async Task<Result<IEnumerable<CompañeroClaseDto>>> GetCompañerosAsync(int estudianteId)
         {
             var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(estudianteId);
-            var companeros = new List<CompañeroClaseDto>();
 
-            foreach (var inscripcion in inscripciones)
+            if (!inscripciones.Any())
             {
-                var otrasInscripciones = await _unitOfWork.Inscripciones.GetByMateriaAsync(inscripcion.MateriaId);
-                
-                companeros.AddRange(
-                    otrasInscripciones
-                        .Where(i => i.EstudiantId != estudianteId)
-                        .Select(i => new CompañeroClaseDto
-                        {
-                            EstudianteNombre = $"{i.Estudiante.Nombre} {i.Estudiante.Apellido}",
-                            MateriaNombre = inscripcion.Materia.Nombre
-                        })
-                );
+                return Result<IEnumerable<CompañeroClaseDto>>.Success(new List<CompañeroClaseDto>());
             }
+
+            // Obtener todos los IDs de materia del estudiante
+            var materiaIds = inscripciones.Select(i => i.MateriaId).ToList();
+
+            // Obtener todas las inscripciones de esas materias en una sola consulta
+            var todasLasInscripciones = await _unitOfWork.Inscripciones.GetByMateriasAsync(materiaIds);
+
+            // Filtrar: Excluir al estudiante mismo y procesar en memoria
+            var companeros = todasLasInscripciones
+                .Where(i => i.EstudiantId != estudianteId)
+                .Select(i => new CompañeroClaseDto
+                {
+                    EstudianteNombre = $"{i.Estudiante.Nombre} {i.Estudiante.Apellido}",
+                    MateriaNombre = i.Materia.Nombre
+                })
+                .ToList();
 
             return Result<IEnumerable<CompañeroClaseDto>>.Success(companeros);
         }

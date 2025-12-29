@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { InscripcionService } from '../../services/inscripcion.service';
 import { AuthService } from '../../services/auth.service';
 import { MateriaDisponible } from '../../models/inscripcion.interface';
+import { catchError, timeout } from 'rxjs/operators';
+import { of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-mis-inscripciones',
@@ -21,11 +23,16 @@ export class MisInscripcionesComponent implements OnInit {
   inscribiendo = false;
   mensajeExito = '';
   maxMaterias = 3;
+  maxCreditos = 9;
+  debugInfo = '';
+  limiteAlcanzado = false;
 
+  // Exponer authService para acceso en template
   constructor(
-    private inscripcionService: InscripcionService,
-    private authService: AuthService,
-    private router: Router
+    public inscripcionService: InscripcionService,
+    public authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -36,7 +43,9 @@ export class MisInscripcionesComponent implements OnInit {
     }
 
     const estudiantId = this.authService.getEstudiantId();
+
     if (estudiantId) {
+      this.debugInfo = `Estudiante ID: ${estudiantId}`;
       this.cargarMateriasDisponibles(estudiantId);
     } else {
       this.error = 'No se pudo obtener tu ID de estudiante. Por favor inicia sesión nuevamente.';
@@ -47,14 +56,58 @@ export class MisInscripcionesComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.inscripcionService.getMateriasDisponibles(estudianteId).subscribe({
-      next: (data) => {
-        this.materiasDisponibles = data;
+    this.inscripcionService.getMateriasDisponibles(estudianteId).pipe(
+      timeout(10000), // 10 segundos de timeout
+      catchError(err => {
+        console.error('Error en la petición:', err);
+
+        if (err.name === 'TimeoutError') {
+          this.error = 'La petición tardó demasiado. Verifica tu conexión.';
+        } else if (err.status === 0) {
+          this.error = 'Error de conexión. Verifica que el backend esté corriendo.';
+        } else if (err.status === 401) {
+          this.error = 'Tu sesión expiró. Por favor cierra sesión y vuelve a ingresar.';
+        } else if (err.status === 403) {
+          this.error = 'No tienes permiso. Usa tu propia cuenta de estudiante.';
+        } else {
+          this.error = `Error: ${err.message || err.status || 'Desconocido'}`;
+        }
+
         this.loading = false;
+        this.cdr.detectChanges();
+        return of([]);
+      })
+    ).subscribe({
+      next: (data) => {
+        const todasLasMaterias = data || [];
+
+        // Contar materias inscritas
+        const materiasInscritas = todasLasMaterias.filter(m => m.motivoNoDisponible === 'Ya inscrito');
+        const creditosInscritos = materiasInscritas.reduce((total, m) => total + m.creditos, 0);
+
+        console.log(`Materias inscritas: ${materiasInscritas.length}, Créditos: ${creditosInscritos}`);
+
+        // Si ya tiene el máximo de materias o créditos, mostrar solo las inscritas
+        if (materiasInscritas.length >= this.maxMaterias || creditosInscritos >= this.maxCreditos) {
+          this.materiasDisponibles = materiasInscritas;
+          this.limiteAlcanzado = true;
+          this.mensajeExito = `¡Ya has alcanzado el máximo de ${this.maxMaterias} materias (${creditosInscritos} créditos)!`;
+        } else {
+          // Mostrar TODAS las materias (disponibles y no disponibles)
+          this.materiasDisponibles = todasLasMaterias;
+          this.limiteAlcanzado = false;
+        }
+
+        this.loading = false;
+        this.cdr.detectChanges();
+
+        console.log(`Materias cargadas: ${this.materiasDisponibles.length}, Límite alcanzado: ${this.limiteAlcanzado}`);
       },
       error: (err) => {
-        this.error = 'Error al cargar materias disponibles';
+        console.error('Error en subscribe:', err);
         this.loading = false;
+        this.error = `Error: ${err.message || err.status || 'Desconocido'}`;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -89,7 +142,7 @@ export class MisInscripcionesComponent implements OnInit {
     this.error = '';
 
     this.inscripcionService.inscribir(estudiantId, Array.from(this.materiasSeleccionadas)).subscribe({
-      next: () => {
+      next: (response) => {
         this.mensajeExito = '¡Inscripción exitosa!';
         this.materiasSeleccionadas.clear();
         this.inscribiendo = false;
@@ -100,8 +153,20 @@ export class MisInscripcionesComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Error al inscribir materias';
+        console.error('Error en inscripción:', err);
+
+        // Mostrar mensaje de error principal y errores de validación
+        const errorMsg = err.error?.message || 'Error al inscribir materias';
+        const validationErrors = err.error?.errors;
+
+        if (validationErrors && Array.isArray(validationErrors) && validationErrors.length > 0) {
+          this.error = `${errorMsg}\n\nDetalles:\n• ${validationErrors.join('\n• ')}`;
+        } else {
+          this.error = errorMsg;
+        }
+
         this.inscribiendo = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -115,5 +180,9 @@ export class MisInscripcionesComponent implements OnInit {
       const materia = this.materiasDisponibles.find(m => m.materiaId === id);
       return total + (materia?.creditos || 0);
     }, 0);
+  }
+
+  getCreditosInscritos(): number {
+    return this.materiasDisponibles.reduce((total, m) => total + m.creditos, 0);
   }
 }

@@ -42,6 +42,22 @@ export class RegisterComponent {
       return;
     }
 
+    // Validaciones adicionales que coinciden con el backend
+    if (!/[A-Z]/.test(this.registerData.password)) {
+      this.errorMessage = 'La contraseña debe contener al menos una letra mayúscula';
+      return;
+    }
+
+    if (!/[a-z]/.test(this.registerData.password)) {
+      this.errorMessage = 'La contraseña debe contener al menos una letra minúscula';
+      return;
+    }
+
+    if (!/[0-9]/.test(this.registerData.password)) {
+      this.errorMessage = 'La contraseña debe contener al menos un número';
+      return;
+    }
+
     this.loading = true;
 
     this.authService.register(this.registerData).subscribe({
@@ -51,7 +67,18 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error?.message || 'Error al registrarse. Intenta con otro usuario.';
+        console.error('Error de registro:', err);
+
+        // Mostrar mensaje de error detallado
+        if (err.error?.errors && Array.isArray(err.error.errors)) {
+          this.errorMessage = err.error.errors.join(', ');
+        } else if (err.error?.message) {
+          this.errorMessage = err.error.message;
+        } else if (err.message) {
+          this.errorMessage = err.message;
+        } else {
+          this.errorMessage = 'Error al registrarse. Verifica que la contraseña cumpla los requisitos.';
+        }
       }
     });
   }

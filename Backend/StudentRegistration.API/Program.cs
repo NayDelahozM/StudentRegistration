@@ -24,7 +24,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(connectionString, sqlServerOptions =>
     {
-        sqlServerOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
+        // Deshabilitar retry strategy para permitir transacciones manuales
+        // sqlServerOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
         sqlServerOptions.CommandTimeout(30);
     })
     .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())

@@ -16,12 +16,13 @@ export interface CreateInscripcion {
 
 export interface InscripcionDetalle {
   inscripcionId: number;
-  estudianteId: number;
+  estudiantId: number;
+  estudianteNombre: string;
+  estudianteEmail: string;
   materiaId: number;
   materiaNombre: string;
   materiaCode: string;
-  creditos: number;
   profesorId: number;
   profesorNombre: string;
-  createdAt: string;
+  fechaInscripcion: string;
 }

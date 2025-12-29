@@ -1,0 +1,92 @@
+<div class="perfil-container">
+  <header class="page-header">
+    <button (click)="goBack()" class="btn-back">← Volver</button>
+    <div class="header-content">
+      <h1>👤 Mi Perfil</h1>
+      <p class="subtitle">Información de tu cuenta de estudiante</p>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando tu perfil...</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="content-container">
+    <div class="perfil-card">
+      <div class="card-header">
+        <div class="avatar">
+          {{ estudiante?.nombre?.charAt(0) }}{{ estudiante?.apellido?.charAt(0) }}
+        </div>
+        <div class="header-info">
+          <h2>{{ estudiante?.nombre }} {{ estudiante?.apellido }}</h2>
+          <p class="email">{{ estudiante?.email }}</p>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-section">
+          <h3>📋 Información Personal</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Nombre:</span>
+              <span class="value">{{ estudiante?.nombre }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Apellido:</span>
+              <span class="value">{{ estudiante?.apellido }}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="label">Email:</span>
+              <span class="value">{{ estudiante?.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Teléfono:</span>
+              <span class="value">{{ estudiante?.telefono || 'No registrado' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Dirección:</span>
+              <span class="value">{{ estudiante?.direccion || 'No registrada' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Estado:</span>
+              <span class="value status" [class.active]="estudiante?.activo">
+                {{ estudiante?.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section" *ngIf="estudiante?.inscripciones && estudiante.inscripciones.length > 0">
+          <h3>📚 Mis Materias Inscritas</h3>
+          <div class="inscripciones-list">
+            <div class="inscripcion-item" *ngFor="let inscripcion of estudiante.inscripciones">
+              <div class="materia-info">
+                <span class="materia-nombre">{{ inscripcion.materiaNombre }}</span>
+                <span class="materia-codigo">{{ inscripcion.materiaCode }}</span>
+              </div>
+              <div class="profesor-info">
+                <span class="profesor-label">Profesor:</span>
+                <span class="profesor-nombre">{{ inscripcion.profesorNombre }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section" *ngIf="!estudiante?.inscripciones || estudiante.inscripciones.length === 0">
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No tienes materias inscritas</h3>
+            <p>Aún no te has inscrito a ninguna materia.</p>
+            <a routerLink="/mis-inscripciones" class="btn-primary">Ver Materias Disponibles</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error }}</p>
+  </div>
+</div>

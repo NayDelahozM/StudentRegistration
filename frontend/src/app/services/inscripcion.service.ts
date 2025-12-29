@@ -13,10 +13,6 @@ interface ValidacionResponse {
   errors: string[];
 }
 
-interface InscribirResponse {
-  data: InscripcionDetalle[];
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -37,16 +33,17 @@ export class InscripcionService {
   }
 
   inscribir(estudianteId: number, materiaIds: number[]): Observable<InscripcionDetalle[]> {
-    return this.http.post<InscribirResponse>(`${this.apiUrl}`, {
+    return this.http.post<InscripcionDetalle[]>(`${this.apiUrl}`, {
       estudiantId: estudianteId,
       materiaIds: materiaIds
-    }).pipe(
-      // @ts-ignore
-      response => response.data || []
-    );
+    });
   }
 
   cancelarInscripcion(inscripcionId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${inscripcionId}`);
+  }
+
+  getAllInscripciones(): Observable<InscripcionDetalle[]> {
+    return this.http.get<InscripcionDetalle[]>(`${this.apiUrl}/todas`);
   }
 }

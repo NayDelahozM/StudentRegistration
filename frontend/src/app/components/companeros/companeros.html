@@ -15,7 +15,7 @@
   <div *ngIf="error" class="error-container">
     <div class="error-icon">⚠️</div>
     <p>{{ error }}</p>
-    <button (click)="loadCompaneros()" class="btn-retry">Reintentar</button>
+    <button *ngIf="!esErrorAdmin" (click)="loadCompaneros()" class="btn-retry">Reintentar</button>
   </div>
 
   <div *ngIf="!loading && !error" class="content-container">

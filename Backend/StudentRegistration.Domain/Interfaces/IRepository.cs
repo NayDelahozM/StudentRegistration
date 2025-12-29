@@ -30,9 +30,11 @@ namespace StudentRegistration.Domain.Interfaces
     {
         Task<IEnumerable<Inscripcion>> GetByEstudianteAsync(int estudianteId);
         Task<IEnumerable<Inscripcion>> GetByMateriaAsync(int materiaId);
+        Task<IEnumerable<Inscripcion>> GetByMateriasAsync(List<int> materiaIds);
         Task<int> CountByEstudianteAsync(int estudianteId);
         Task<bool> TieneProfesorAsync(int estudianteId, int profesorId);
         Task<bool> ExisteInscripcionAsync(int estudianteId, int materiaId);
+        Task<IEnumerable<Inscripcion>> GetAllWithRelationsAsync();
     }
 
     public interface IMateriaRepository : IRepository<Materia>

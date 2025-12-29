@@ -10,5 +10,7 @@ namespace StudentRegistration.Application.Interfaces
         Task<Result<IEnumerable<InscripcionDto>>> InscribirAsync(CreateInscripcionDto dto);
         Task<Result> CancelarAsync(int inscripcionId);
         Task<Result<IEnumerable<MateriaDisponibleDto>>> GetMateriasDisponiblesAsync(int estudianteId);
+        Task<Result<InscripcionDto>> GetInscripcionByIdAsync(int inscripcionId);
+        Task<Result<IEnumerable<InscripcionDto>>> GetAllAsync();
     }
 }

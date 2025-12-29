@@ -14,6 +14,14 @@
   </header>
 
   <nav class="dashboard-nav">
+    <div (click)="navigateTo('/mi-perfil')" routerLink="/mi-perfil" routerLinkActive="active" class="nav-card">
+      <div class="nav-icon">👤</div>
+      <div class="nav-content">
+        <h3>Mi Perfil</h3>
+        <p>Ver tu información personal</p>
+      </div>
+    </div>
+
     <div (click)="navigateTo('/estudiantes')" routerLink="/estudiantes" routerLinkActive="active" class="nav-card">
       <div class="nav-icon">👥</div>
       <div class="nav-content">
@@ -22,7 +30,7 @@
       </div>
     </div>
 
-    <div (click)="navigateTo('/mis-inscripciones')" routerLink="/mis-inscripciones" routerLinkActive="active" class="nav-card">
+    <div *ngIf="isEstudiante()" (click)="navigateTo('/mis-inscripciones')" routerLink="/mis-inscripciones" routerLinkActive="active" class="nav-card">
       <div class="nav-icon">📚</div>
       <div class="nav-content">
         <h3>Mis Inscripciones</h3>
@@ -30,11 +38,19 @@
       </div>
     </div>
 
-    <div (click)="navigateTo('/companeros')" routerLink="/companeros" routerLinkActive="active" class="nav-card">
+    <div *ngIf="isEstudiante()" (click)="navigateTo('/companeros')" routerLink="/companeros" routerLinkActive="active" class="nav-card">
       <div class="nav-icon">👫</div>
       <div class="nav-content">
         <h3>Mis Compañeros</h3>
         <p>Ver compañeros de clase (Req #9)</p>
+      </div>
+    </div>
+
+    <div *ngIf="isAdmin()" (click)="navigateTo('/todas-inscripciones')" routerLink="/todas-inscripciones" routerLinkActive="active" class="nav-card">
+      <div class="nav-icon">📋</div>
+      <div class="nav-content">
+        <h3>Todas las Inscripciones</h3>
+        <p>Ver y cancelar inscripciones de alumnos</p>
       </div>
     </div>
   </nav>
@@ -54,40 +70,14 @@
       </ul>
 
       <p *ngIf="isAdmin()">
-        Como administrador, tienes acceso completo a:
+        Como administrador, puedes:
       </p>
       <ul *ngIf="isAdmin()" class="feature-list">
-        <li>✅ <strong>Crear</strong> nuevos estudiantes</li>
         <li>✅ <strong>Editar</strong> información de estudiantes</li>
         <li>✅ <strong>Eliminar</strong> estudiantes</li>
-        <li>✅ Ver <strong>toda la información</strong> del sistema</li>
+        <li>✅ Ver <strong>todos los estudiantes</strong> registrados</li>
+        <li>✅ <strong>Cancelar inscripciones</strong> de estudiantes</li>
       </ul>
-    </div>
-
-    <div class="info-grid">
-      <div class="info-card">
-        <div class="info-icon">📚</div>
-        <h3>10 Materias</h3>
-        <p>Cada materia vale <strong>3 créditos</strong></p>
-      </div>
-
-      <div class="info-card">
-        <div class="info-icon">👨‍🏫</div>
-        <h3>5 Profesores</h3>
-        <p>Cada uno dicta <strong>2 materias</strong></p>
-      </div>
-
-      <div class="info-card">
-        <div class="info-icon">⚖️</div>
-        <h3>Máximo 3 Materias</h3>
-        <p>Límite por <strong>estudiante</strong></p>
-      </div>
-
-      <div class="info-card">
-        <div class="info-icon">🚫</div>
-        <h3>Sin Repetir Profesor</h3>
-        <p><strong>Validación</strong> automática</p>
-      </div>
     </div>
   </main>
 

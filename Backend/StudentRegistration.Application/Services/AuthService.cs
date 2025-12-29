@@ -106,10 +106,17 @@ namespace StudentRegistration.Application.Services
 
                 return Result<LoginResponseDto>.Success(response, "Registro exitoso");
             }
-            catch
+            catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return Result<LoginResponseDto>.Failure("Error al crear el usuario y estudiante. Por favor intente nuevamente.");
+                // Log del error interno para depuración
+                Console.WriteLine($"Error en registro: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"InnerException: {ex.InnerException.Message}");
+                }
+                return Result<LoginResponseDto>.Failure($"Error al crear el usuario y estudiante: {ex.Message}");
             }
         }
 

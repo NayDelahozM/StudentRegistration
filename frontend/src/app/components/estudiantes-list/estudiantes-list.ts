@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -51,7 +51,8 @@ export class EstudiantesListComponent implements OnInit {
   constructor(
     private estudianteService: EstudianteService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -67,11 +68,13 @@ export class EstudiantesListComponent implements OnInit {
       next: (data) => {
         this.estudiantes = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar estudiantes:', err);
         this.error = 'Error al cargar la lista de estudiantes. Por favor intenta nuevamente.';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -102,11 +105,13 @@ export class EstudiantesListComponent implements OnInit {
         };
         this.showEditModal = true;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar estudiante:', err);
         this.error = 'Error al cargar los datos del estudiante.';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -146,11 +151,13 @@ export class EstudiantesListComponent implements OnInit {
         this.closeCreateModal();
         this.loadEstudiantes();
         this.procesando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al crear estudiante:', err);
         this.error = err.error?.message || 'Error al crear estudiante.';
         this.procesando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -167,11 +174,13 @@ export class EstudiantesListComponent implements OnInit {
         this.closeEditModal();
         this.loadEstudiantes();
         this.procesando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al actualizar estudiante:', err);
         this.error = err.error?.message || 'Error al actualizar estudiante.';
         this.procesando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -186,11 +195,13 @@ export class EstudiantesListComponent implements OnInit {
         this.closeDeleteModal();
         this.loadEstudiantes();
         this.procesando = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al eliminar estudiante:', err);
         this.error = err.error?.message || 'Error al eliminar estudiante.';
         this.procesando = false;
+        this.cdr.detectChanges();
       }
     });
   }

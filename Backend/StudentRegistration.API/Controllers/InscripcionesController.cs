@@ -60,14 +60,37 @@ namespace StudentRegistration.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Cancelar(int id)
         {
+            // Obtener la inscripción para validar autorización
+            var inscripciones = await _inscripcionService.GetInscripcionByIdAsync(id);
+
+            if (!inscripciones.IsSuccess || inscripciones.Data == null)
+            {
+                return NotFound(new { message = "Inscripción no encontrada" });
+            }
+
+            // Validar autorización: los estudiantes solo pueden cancelar sus propias inscripciones
+            var inscripcion = inscripciones.Data;
+            if (!AuthorizationHelper.CanAccessStudentData(HttpContext, inscripcion.EstudiantId))
+            {
+                return StatusCode(403, new { message = "No tienes permiso para cancelar esta inscripción" });
+            }
+
             var result = await _inscripcionService.CancelarAsync(id);
-            
+
             if (!result.IsSuccess)
             {
                 return NotFound(new { message = result.Message });
             }
 
             return NoContent();
+        }
+
+        [HttpGet("todas")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _inscripcionService.GetAllAsync();
+            return Ok(result.Data);
         }
 
         [HttpGet("materias-disponibles/{estudianteId}")]
