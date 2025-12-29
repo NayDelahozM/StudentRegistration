@@ -608,7 +608,6 @@ Authorization: Bearer <token_estudiante>
 ## Soporte
 
 - **Documentación API Swagger**: https://localhost:5001/swagger (desarrollo)
-- **Base de Conocimiento**: Ver código fuente (comentarios de alto valor ingenieril)
 
 
 
