@@ -151,26 +151,26 @@ namespace StudentRegistration.Application.Services
             }
         }
 
-        public async Task<Result<IEnumerable<CompañeroClaseDto>>> GetCompañerosAsync(int estudianteId)
+        public async Task<Result<IEnumerable<CompaneroClaseDto>>> GetCompañerosAsync(int estudianteId)
         {
             var inscripciones = await _unitOfWork.Inscripciones.GetByEstudianteAsync(estudianteId);
 
             if (!inscripciones.Any())
             {
-                return Result<IEnumerable<CompañeroClaseDto>>.Success(new List<CompañeroClaseDto>());
+                return Result<IEnumerable<CompaneroClaseDto>>.Success(new List<CompaneroClaseDto>());
             }
 
             var materiaIds = inscripciones.Select(i => i.MateriaId).ToList();
 
             var companerosData = await _unitOfWork.Inscripciones.GetCompañerosByMateriasAsync(materiaIds, estudianteId);
 
-            var companeros = companerosData.Select(c => new CompañeroClaseDto
+            var companeros = companerosData.Select(c => new CompaneroClaseDto
             {
                 EstudianteNombre = c.EstudianteNombre,
                 MateriaNombre = c.MateriaNombre
             });
 
-            return Result<IEnumerable<CompañeroClaseDto>>.Success(companeros);
+            return Result<IEnumerable<CompaneroClaseDto>>.Success(companeros);
         }
     }
 }

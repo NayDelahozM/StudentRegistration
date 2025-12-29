@@ -14,6 +14,6 @@ namespace StudentRegistration.Application.Interfaces
         Task<Result<EstudianteDto>> CreateAsync(CreateEstudianteDto dto);
         Task<Result<EstudianteDto>> UpdateAsync(int id, UpdateEstudianteDto dto);
         Task<Result> DeleteAsync(int id);
-        Task<Result<IEnumerable<CompañeroClaseDto>>> GetCompañerosAsync(int estudianteId);
+        Task<Result<IEnumerable<CompaneroClaseDto>>> GetCompañerosAsync(int estudianteId);
     }
 }
