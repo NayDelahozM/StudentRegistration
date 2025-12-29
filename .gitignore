@@ -79,3 +79,11 @@ TestResults/
 
 # CLAUDE.md - Keep this file
 !CLAUDE.md
+
+# EVALUACION_TECNICA.md - Keep documentation
+!EVALUACION_TECNICA.md
+
+# Temporary files
+*nul
+*.tmp
+*.temp
