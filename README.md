@@ -404,6 +404,84 @@ private apiUrl = 'http://localhost:5000/api';
 
 **NOTA:** Cambiar `auth.service.ts:7` antes de producción.
 
+## 📊 Datos Seed Iniciales
+
+La aplicación incluye datos iniciales (seed data) que se crean automáticamente al ejecutar la primera migración. Estos datos permiten probar el sistema inmediatamente sin necesidad de cargar manualmente información básica.
+
+### Usuarios del Sistema
+
+| Usuario | Username | Password | Rol | Email |
+|---------|----------|----------|-----|-------|
+| Administrador | `admin` | `Admin123*` | Admin | admin@universidad.edu |
+
+**⚠️ IMPORTANTE:** El password del admin está hasheado con BCrypt en el código. Solo funcionará este password exacto.
+
+### Profesores (5 registros)
+
+| ID | Nombre | Apellido | Email |
+|----|--------|----------|-------|
+| 1 | Carlos | Rodríguez | carlos.rodriguez@universidad.edu |
+| 2 | María | González | maria.gonzalez@universidad.edu |
+| 3 | José | Martínez | jose.martinez@universidad.edu |
+| 4 | Ana | López | ana.lopez@universidad.edu |
+| 5 | Pedro | Sánchez | pedro.sanchez@universidad.edu |
+
+### Materias (10 registros)
+
+| ID | Código | Nombre | Créditos | Descripción |
+|----|--------|--------|----------|-------------|
+| 1 | PROG101 | Programación I | 3 | Fundamentos de programación |
+| 2 | BD102 | Bases de Datos | 3 | Diseño y gestión de BD |
+| 3 | ED103 | Estructuras de Datos | 3 | Algoritmos y estructuras |
+| 4 | WEB104 | Desarrollo Web | 3 | Aplicaciones web |
+| 5 | IS105 | Ingeniería de Software | 3 | Metodologías |
+| 6 | RED106 | Redes de Computadoras | 3 | Fundamentos de redes |
+| 7 | SO107 | Sistemas Operativos | 3 | Arquitectura de SO |
+| 8 | IA108 | Inteligencia Artificial | 3 | Introducción a IA |
+| 9 | SEG109 | Seguridad Informática | 3 | Seguridad en sistemas |
+| 10 | ARQ110 | Arquitectura de Software | 3 | Patrones |
+
+### Asignaciones Profesor-Materia (10 registros)
+
+Cada materia está asignada a un profesor específico:
+
+| ID | Profesor | Materia Asignada |
+|----|----------|------------------|
+| 1 | Carlos Rodríguez (1) | Programación I |
+| 2 | Carlos Rodríguez (1) | Bases de Datos |
+| 3 | María González (2) | Estructuras de Datos |
+| 4 | María González (2) | Desarrollo Web |
+| 5 | José Martínez (3) | Ingeniería de Software |
+| 6 | José Martínez (3) | Redes de Computadoras |
+| 7 | Ana López (4) | Sistemas Operativos |
+| 8 | Ana López (4) | Inteligencia Artificial |
+| 9 | Pedro Sánchez (5) | Seguridad Informática |
+| 10 | Pedro Sánchez (5) | Arquitectura de Software |
+
+**Nota de diseño:** Cada profesor imparte 2 materias. Esto permite probar la regla de negocio: *Un estudiante no puede inscribirse en materias impartidas por el mismo profesor*.
+
+### Ubicación del Código
+
+El método que genera estos datos se encuentra en:
+```
+Backend/StudentRegistration.Infrastructure/Data/ApplicationDbContext.cs
+Método: SeedData(ModelBuilder modelBuilder)
+Líneas: 125-173
+```
+
+### Modificar los Datos Seed
+
+Para agregar, modificar o eliminar datos iniciales:
+
+1. Abrir `Backend/StudentRegistration.Infrastructure/Data/ApplicationDbContext.cs`
+2. Localizar el método `SeedData` (línea 125)
+3. Modificar las llamadas a `modelBuilder.Entity<T>().HasData(...)`
+4. Si modificas la estructura, crear una nueva migración:
+   ```bash
+   dotnet ef migrations add UpdateSeedData -p StudentRegistration.Infrastructure -s StudentRegistration.API
+   dotnet ef database update -p StudentRegistration.Infrastructure -s StudentRegistration.API
+   ```
+
 ### Migraciones
 
 **Automático en desarrollo** (`Program.cs:178-190`):
