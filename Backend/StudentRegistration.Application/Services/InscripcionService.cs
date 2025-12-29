@@ -15,6 +15,7 @@ namespace StudentRegistration.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private const int MAX_MATERIAS = 3;
+        private const int MAX_CREDITOS = 9;
 
         public InscripcionService(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -51,6 +52,14 @@ namespace StudentRegistration.Application.Services
                 return Result.Failure(errors);
             }
 
+            // Validar límite de créditos
+            var creditosActuales = await _unitOfWork.Inscripciones.GetCreditosByEstudianteAsync(estudianteId);
+            if (creditosActuales >= MAX_CREDITOS)
+            {
+                errors.Add($"Ya tienes {creditosActuales} créditos. Máximo: {MAX_CREDITOS}");
+                return Result.Failure(errors);
+            }
+
             var profesoresAsignados = new HashSet<int>();
             var inscripcionesExistentes = await _unitOfWork.Inscripciones.GetByEstudianteAsync(estudianteId);
             
@@ -78,6 +87,13 @@ namespace StudentRegistration.Application.Services
                 if (profesorMateria == null)
                 {
                     errors.Add($"La materia {materia.Nombre} no tiene profesor asignado");
+                    continue;
+                }
+
+                // Validar que el Profesor no sea null (defensive programming)
+                if (profesorMateria.Profesor == null)
+                {
+                    errors.Add($"La materia {materia.Nombre} tiene profesor asignado pero los datos del profesor no están disponibles");
                     continue;
                 }
 

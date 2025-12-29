@@ -33,7 +33,7 @@ export const routes: Routes = [
     path: 'companeros',
     loadComponent: () => import('./components/companeros/companeros')
       .then(m => m.CompanerosComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, estudianteGuard]
   },
   {
     path: 'mis-inscripciones',

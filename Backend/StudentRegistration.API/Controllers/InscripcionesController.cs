@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StudentRegistration.Application.DTOs.Inscripcion;
 using StudentRegistration.Application.Interfaces;
 using StudentRegistration.API.Helpers;
@@ -13,10 +14,12 @@ namespace StudentRegistration.API.Controllers
     public class InscripcionesController : ControllerBase
     {
         private readonly IInscripcionService _inscripcionService;
+        private readonly ILogger<InscripcionesController> _logger;
 
-        public InscripcionesController(IInscripcionService inscripcionService)
+        public InscripcionesController(IInscripcionService inscripcionService, ILogger<InscripcionesController> logger)
         {
             _inscripcionService = inscripcionService;
+            _logger = logger;
         }
 
         [HttpPost("validar")]
@@ -44,6 +47,8 @@ namespace StudentRegistration.API.Controllers
             // Fix Problema #2: Validar autorización por estudiante
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, dto.EstudianteId))
             {
+                _logger.LogWarning("Usuario {Username} intentó inscribir al estudiante {EstudianteId} sin permiso",
+                    User.Identity?.Name, dto.EstudianteId);
                 return StatusCode(403, new { message = "No tienes permiso para inscribir a este estudiante" });
             }
 
@@ -51,8 +56,13 @@ namespace StudentRegistration.API.Controllers
 
             if (!result.IsSuccess)
             {
+                _logger.LogWarning("Inscripción fallida para estudiante {EstudianteId}: {Message}",
+                    dto.EstudianteId, result.Message);
                 return BadRequest(new { message = result.Message, errors = result.Errors });
             }
+
+            _logger.LogInformation("Estudiante {EstudianteId} se inscribió exitosamente en {Count} materias: {Materias}",
+                dto.EstudianteId, dto.MateriaIds.Count, string.Join(", ", dto.MateriaIds));
 
             return CreatedAtAction(nameof(Validar), result.Data);
         }
@@ -72,6 +82,8 @@ namespace StudentRegistration.API.Controllers
             var inscripcion = inscripciones.Data;
             if (!AuthorizationHelper.CanAccessStudentData(HttpContext, inscripcion.EstudianteId))
             {
+                _logger.LogWarning("Usuario {Username} intentó cancelar inscripción {InscripcionId} del estudiante {EstudianteId} sin permiso",
+                    User.Identity?.Name, id, inscripcion.EstudianteId);
                 return StatusCode(403, new { message = "No tienes permiso para cancelar esta inscripción" });
             }
 
@@ -81,6 +93,9 @@ namespace StudentRegistration.API.Controllers
             {
                 return NotFound(new { message = result.Message });
             }
+
+            _logger.LogInformation("Inscripción {InscripcionId} cancelada exitosamente para estudiante {EstudianteId}",
+                id, inscripcion.EstudianteId);
 
             return NoContent();
         }

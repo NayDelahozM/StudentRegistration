@@ -49,6 +49,14 @@ namespace StudentRegistration.Infrastructure.Repositories
                 .CountAsync(i => i.EstudianteId == estudianteId && !i.IsDeleted);
         }
 
+        public async Task<int> GetCreditosByEstudianteAsync(int estudianteId)
+        {
+            return await _context.Set<Inscripcion>()
+                .Where(i => i.EstudianteId == estudianteId && !i.IsDeleted)
+                .Include(i => i.Materia)
+                .SumAsync(i => i.Materia.Creditos);
+        }
+
         public async Task<bool> TieneProfesorAsync(int estudianteId, int profesorId)
         {
             return await _context.Set<Inscripcion>()
