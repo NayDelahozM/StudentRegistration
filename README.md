@@ -1,6 +1,6 @@
 # Student Registration System
 
-Sistema universitario de gestión de inscripciones de estudiantes con control de acceso basado en roles y validación de reglas de negocio.
+es un sistema de inscripción de estudiantes basado en la web, diseñado para gestionar la inscripción de estudiantes y la inscripción a cursos, al mismo tiempo que aplica reglas comerciales académicas fundamentales mediante una arquitectura limpia y en capas.
 
 **Estado:** ✅ Listo para producción
 **Última actualización:** Diciembre 2025
@@ -9,21 +9,31 @@ Sistema universitario de gestión de inscripciones de estudiantes con control de
 ---
 
 ## 1. Descripción del Sistema
+Este proyecto se desarrolló como parte de una evaluación técnica.
+El objetivo principal es demostrar principios sólidos de diseño de backend, una arquitectura limpia y una correcta aplicación de las reglas de negocio mediante tecnologías .NET modernas.
 
-### Problema de Negocio Resuelto
-Permite a estudiantes universitarios inscribirse en materias con las siguientes restricciones académicas:
-- Máximo 3 materias por estudiante
-- Máximo 9 créditos (3 materias × 3 créditos)
-- No se puede repetir profesor en diferentes materias
-- Visibilidad limitada de datos entre estudiantes (solo nombre y apellido)
+### Características principales
+Inscripción de estudiantes
+Inscripción al curso
+Ver estudiantes inscritos por curso (solo nombre)
+Validación de reglas de negocio en la capa de aplicación
+Integridad de datos relacionales
 
-### Usuarios y Permisos
+📐 Reglas de negocio
+Un estudiante puede inscribirse en hasta 3 cursos
+Cada curso vale 3 créditos.
+Un estudiante no puede inscribirse en varios cursos impartidos por el mismo profesor.
+Un curso está asignado a un solo profesor
+Los estudiantes solo pueden ver los nombres de sus compañeros inscritos en el mismo curso.
 
-| Rol | Permisos | Acceso |
-|-----|----------|--------|
-| **Estudiante** | - Inscribirse en máximo 3 materias<br>- Cancelar inscripciones propias<br>- Ver sus propias inscripciones<br>- Ver compañeros de clase (solo mismo nombre/apellido)<br>- Ver y editar su perfil | Dashboard, Mis Inscripciones, Mi Perfil, Compañeros |
-| **Admin** | - Gestionar todos los estudiantes (CRUD completo)<br>- Ver todas las inscripciones<br>- Ver perfil completo de estudiantes<br>- Crear nuevos estudiantes | Dashboard, Estudiantes, Todas las Inscripciones, Perfiles completos |
+🗄️ Acceso a datos y estrategia de bases de datos
+La aplicación utiliza Entity Framework Core (Code First) para generar y administrar el esquema de la base de datos a través de migraciones.
 
+Aunque la base de datos está construida a partir de código, se incluye un script SQL MySQL completo para fines de referencia y validación, lo que demuestra el modelado relacional y la competencia en SQL.
+
+Motor de base de datos: SQL Server
+Enfoque: Code First with Migrations
+ORM: Entity Framework Core
 
 
 ## 2. Arquitectura
@@ -357,17 +367,26 @@ ng serve
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=YOUR_SERVER;Database=StudentRegistrationDB;Trusted_Connection=True;"
+    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=StudentRegistrationDB;Integrated Security=true;TrustServerCertificate=True"
   },
   "Jwt": {
-    "SecretKey": "YOUR_SECRET_KEY_MIN_32_CHARS",
+    "SecretKey": "SuperSecretKeyMustBeAtLeast32CharactersLongForHS256!",
     "Issuer": "StudentRegistrationAPI",
-    "Audience": "StudentRegistrationClient"
+    "Audience": "StudentRegistrationClient",
+    "ExpirationInHours": 24
   },
   "Cors": {
     "AllowedOrigins": ["http://localhost:4200"]
   }
 }
+```
+
+**⚠️ ADVERTENCIA:** El `SecretKey` actual es solo para desarrollo. Para producción, generar una clave segura única:
+```bash
+# Generar clave secreta segura (PowerShell)
+$headers = [System.Byte[]]::new(32)
+(New-Object Security.Cryptography.RNGCryptoServiceProvider).GetBytes($headers)
+[System.Convert]::ToBase64String($headers)
 ```
 
 **Frontend** (no variables - está hardcoded en `auth.service.ts:7`):
